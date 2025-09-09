@@ -1,11 +1,11 @@
 import json
 from pathlib import Path
 
-from Stages.TextExtraction import extract_text
-from Stages.CleaningNormalisation import clean_normalise
-from Stages.ChunkingPlaceholding import chunking
-from Stages.EntitySummary import entity_summary, init_models
-from Stages.EmbedIndex import indexing
+from stages.TextExtraction import extract_text
+from stages.CleaningNormalisation import clean_normalise
+from stages.ChunkingPlaceholding import chunking
+from stages.EntitySummary import entity_summary, init_models
+from stages.EmbedIndex import indexing
 
 STAGE4_OUTPUT_FILE = "stage4_results.json"
 
@@ -33,7 +33,7 @@ def save_stage4_output(doc, output_file=STAGE4_OUTPUT_FILE):
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-def process_file(file_path, index_dir="vector_store"):
+def process_file(file_path, index_dir="vectorStore"):
     """
         Full pipeline: Stage 1 → Stage 5
     """
@@ -54,19 +54,19 @@ def process_file(file_path, index_dir="vector_store"):
     print(chunks)
 
     # Stage 4: Entity + Summarization
-    docs = entity_summary(chunks)
+    doc = entity_summary(chunks)
     print("STAGE 4 DONE")
-    print(docs)
+    print(doc)
 
     # Save Stage 4 output to JSON array (appending)
-    save_stage4_output(docs)
+    save_stage4_output(doc)
 
     # Stage 5: Embedding + Indexing
-    indexing(docs, index_dir)
+    indexing(doc, index_dir)
     print("STAGE 5 DONE")
 
     print(f"✅ File processed through all stages: {Path(file_path).name}")
-    return docs
+    return doc
 
 if __name__ == "__main__":
     test_files = [

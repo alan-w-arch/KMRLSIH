@@ -27,7 +27,7 @@ except ImportError as e:
 # -----------------------------
 # Config
 # -----------------------------
-INDEX_DIR = "../vector_store"
+INDEX_DIR = "../vectorStore"
 INDEX_NAME = "faiss_index"
 EMBEDDINGS_FILE = "embeddings.npy"
 METADATA_FILE = "metadata.jsonl"

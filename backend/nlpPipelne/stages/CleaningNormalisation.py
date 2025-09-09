@@ -2,7 +2,7 @@ import re
 # import nltk
 from nltk.tokenize import sent_tokenize, word_tokenize
 import json
-from Stages.TextExtraction import extract_text
+from stages.TextExtraction import extract_text
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 
