@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: oklch(0.2895 0.0622 263.95); /*Deep navy*/
+  --color-secondary: oklch(0.9755 0.0045 258.32); /*Off white*/
+  --color-accent: oklch(0.7045 0.1926 39.23); /*Vibrant orange*/
+  --color-success: oklch(0.5685 0.1187 154.95); /*Soft green*/
+  --color-warning: oklch(0.7927 0.171 70.67); /*Warm yellow*/
+  --color-danger: oklch(0.5771 0.2152 27.33); /*Bright red*/
+
+
+  --font-sans: "Inter", "sans-serif";
+  --font-heading: "Poppins", "sans-serif";
+  --font-mono: "Fira Code", "monospace";
+}
+
+body {
+  @apply bg-secondary text-primary font-sans;
+}
+
+
