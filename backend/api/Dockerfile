@@ -1,25 +1,15 @@
+# Use official Python image as base
 FROM python:3.11-slim
 
+# Set working directory
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    tesseract-ocr \
-    tesseract-ocr-mal \
-    libtesseract-dev \
-    poppler-utils \
-    build-essential \
- && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
+# Install dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app source
-COPY app/ ./app/
+# Copy project files
+COPY ./app ./app
 
-# Expose app port
-EXPOSE 8000
-
-# Start the app
+# Command to run the FastAPI app with Uvicorn
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,79 +1,57 @@
-# app/main.py
+import os
+import aiohttp
+from fastapi import FastAPI, UploadFile, File
+from pydantic import BaseModel
 
-import logging
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.exc import SQLAlchemyError
+app = FastAPI()
 
-from app.config import settings
-from app.services.db import engine
-from app.models.document import Base
-from app.routers.upload import router as upload_router
-from app.tasks.scheduler import start_scheduler, shutdown_scheduler
+UPLOAD_DIR = "./temp"
 
-logger = logging.getLogger(__name__)
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+@app.get("/")
+async def root():
+    return {"message": "Hello, FastAPI with Docker!"}
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """App startup/shutdown lifecycle manager."""
-    try:
-        # Initialize DB schema (replace with Alembic migrations in real prod)
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database schema initialized")
+class URLRequest(BaseModel):
+    url: str
 
-        # Start background scheduler
-        await start_scheduler()
-        logger.info("Scheduler started")
+@app.post("/url")
+async def receive_url(request: URLRequest):
+    file_url = request.url
 
-        yield
+    # Extract filename from URL
+    filename = file_url.split("/")[-1]
+    file_location = os.path.join(UPLOAD_DIR, filename)
 
-    except SQLAlchemyError as db_err:
-        logger.exception("Database initialization failed: %s", db_err)
-        raise
-    except Exception as e:
-        logger.exception("Unexpected error during startup: %s", e)
-        raise
-    finally:
-        try:
-            await shutdown_scheduler()
-            logger.info("Scheduler shutdown complete")
-        except Exception as e:
-            logger.warning("Scheduler shutdown failed: %s", e)
+    # Download file from URL and save it
+    async with aiohttp.ClientSession() as session:
+        async with session.get(file_url) as resp:
+            if resp.status != 200:
+                return {"error": f"Failed to download file, status: {resp.status}"}
+            
+            content = await resp.read()
+            with open(file_location, "wb") as f:
+                f.write(content)
 
+    return {
+        "downloaded_url": file_url,
+        "saved_location": file_location,
+        "filename": filename,
+        "size": len(content)
+    }
 
-# --- FastAPI app ---
-app = FastAPI(
-    title="KMRL Ingestion Service",
-    version="0.2.0",
-    description="Service for ingestion, OCR, and metadata management",
-    lifespan=lifespan,
-)
+@app.post("/file")
+async def receive_file(file: UploadFile = File(...)):
+    file_location = os.path.join(UPLOAD_DIR, file.filename)
 
+    with open(file_location, "wb") as f:
+        content = await file.read()
+        f.write(content)
 
-# --- Middleware ---
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS or ["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-
-# --- Routers ---
-app.include_router(upload_router)
-
-
-# --- Health Check ---
-@app.get("/health")
-async def health():
-    """Lightweight health check endpoint."""
-    try:
-        async with engine.begin() as conn:
-            await conn.execute("SELECT 1")
-        return {"status": "ok", "db": "up", "scheduler": "running"}
-    except Exception:
-        return {"status": "degraded", "db": "down", "scheduler": "unknown"}
+    return {
+        "filename": file.filename,
+        "content_type": file.content_type,
+        "size": len(content),
+        "saved_location": file_location
+    }
