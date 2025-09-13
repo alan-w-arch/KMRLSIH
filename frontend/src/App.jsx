@@ -7,9 +7,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        
         {/* Catch-all route for 404s */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
