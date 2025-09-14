@@ -2,29 +2,32 @@ import os
 import aiohttp
 from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
+from nlpPipelne.ProcessPipeline import process_file
+import cloudinary.uploader
+from api import config
 
 app = FastAPI()
 
 UPLOAD_DIR = "./temp"
-
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 
 @app.get("/")
 async def root():
     return {"message": "Hello, FastAPI with Docker!"}
 
+
 class URLRequest(BaseModel):
     url: str
+
 
 @app.post("/url")
 async def receive_url(request: URLRequest):
     file_url = request.url
-
-    # Extract filename from URL
     filename = file_url.split("/")[-1]
     file_location = os.path.join(UPLOAD_DIR, filename)
 
-    # Download file from URL and save it
+    # Download file
     async with aiohttp.ClientSession() as session:
         async with session.get(file_url) as resp:
             if resp.status != 200:
@@ -34,24 +37,45 @@ async def receive_url(request: URLRequest):
             with open(file_location, "wb") as f:
                 f.write(content)
 
+    # Process locally
+    output = process_file(file_location)
+
+    # Upload to Cloudinary (using bytes)
+    upload_result = cloudinary.uploader.upload(content, resource_type="auto")
+
+    # Clean up
+    os.remove(file_location)
+
     return {
         "downloaded_url": file_url,
-        "saved_location": file_location,
         "filename": filename,
-        "size": len(content)
+        "size": len(content),
+        "processed": output,
+        "cloudinary_url": upload_result.get("secure_url")
     }
+
 
 @app.post("/file")
 async def receive_file(file: UploadFile = File(...)):
     file_location = os.path.join(UPLOAD_DIR, file.filename)
 
+    content = await file.read()
     with open(file_location, "wb") as f:
-        content = await file.read()
         f.write(content)
+
+    # Process locally
+    output = process_file(file_location)
+
+    # Upload to Cloudinary (using bytes)
+    upload_result = cloudinary.uploader.upload(content, resource_type="auto")
+
+    # Clean up
+    os.remove(file_location)
 
     return {
         "filename": file.filename,
         "content_type": file.content_type,
         "size": len(content),
-        "saved_location": file_location
+        "processed": output,
+        "cloudinary_url": upload_result.get("secure_url")
     }

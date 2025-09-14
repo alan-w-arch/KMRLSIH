@@ -1,3 +1,0 @@
-This is a sample TXT file.
-It contains plain text only.
-For testing text extraction.

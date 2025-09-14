@@ -1,11 +1,11 @@
 import json
 from pathlib import Path
 
-from stages.TextExtraction import extract_text
-from stages.CleaningNormalisation import clean_normalise
-from stages.ChunkingPlaceholding import chunking
-from stages.EntitySummary import entity_summary, init_models
-from stages.EmbedIndex import indexing
+from nlpPipelne.stages.TextExtraction import extract_text
+from nlpPipelne.stages.CleaningNormalisation import clean_normalise
+from nlpPipelne.stages.ChunkingPlaceholding import chunking
+from nlpPipelne.stages.EntitySummary import entity_summary, init_models
+from nlpPipelne.stages.EmbedIndex import indexing
 
 STAGE4_OUTPUT_FILE = "stage4_results.json"
 
@@ -68,15 +68,15 @@ def process_file(file_path, index_dir="vectorStore"):
     print(f"✅ File processed through all stages: {Path(file_path).name}")
     return doc
 
-if __name__ == "__main__":
-    test_files = [
-        "sample.pdf",
-        "sample.docx",
-        "sample.txt"
-    ]
+# if __name__ == "__main__":
+#     test_files = [
+#         "sample.pdf",
+#         "sample.docx",
+#         "sample.txt"
+#     ]
 
-    for file in test_files:
-        try:
-            process_file(f"TestData/{file}")
-        except Exception as e:
-            print(f"❌ Failed to process {file}: {e}")
+#     for file in test_files:
+#         try:
+#             process_file(f"testData/{file}")
+#         except Exception as e:
+#             print(f"❌ Failed to process {file}: {e}")

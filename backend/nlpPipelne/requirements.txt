@@ -1,0 +1,14 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+pdfplumber
+nltk
+numpy
+tqdm
+sentence-transformers
+faiss-cpu
+transformers
+python-docx
+pytesseract
+pandas
+beautifulsoup4
+sentencepiece
