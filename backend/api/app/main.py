@@ -4,7 +4,8 @@ from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
 from nlpPipelne.ProcessPipeline import process_file
 import cloudinary.uploader
-from api import config
+
+from app import config
 
 app = FastAPI()
 

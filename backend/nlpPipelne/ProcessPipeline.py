@@ -7,6 +7,8 @@ from nlpPipelne.stages.ChunkingPlaceholding import chunking
 from nlpPipelne.stages.EntitySummary import entity_summary, init_models
 from nlpPipelne.stages.EmbedIndex import indexing
 
+
+
 STAGE4_OUTPUT_FILE = "stage4_results.json"
 
 init_models(device="cpu")
@@ -39,6 +41,7 @@ def process_file(file_path, index_dir="vectorStore"):
     """
 
     # Stage 1: Extract text
+    
     stage1_result = extract_text(file_path)
     print("STAGE 1 DONE")
     print(stage1_result)
@@ -72,7 +75,8 @@ def process_file(file_path, index_dir="vectorStore"):
 #     test_files = [
 #         "sample.pdf",
 #         "sample.docx",
-#         "sample.txt"
+#         "sample.txt",
+#         "testsubject.png"
 #     ]
 
 #     for file in test_files:
