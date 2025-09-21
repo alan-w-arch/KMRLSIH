@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Bell, User, Menu, X, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import Logo from '../assets/logo.png'; 
 import { useLanguage } from '../context/LanguageContext';
 import SearchDrawer from "./SearchDrawer";
 
