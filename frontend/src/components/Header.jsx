@@ -20,6 +20,9 @@ const Header = () => {
     if (isSearchOpen) setSearchQuery("");
   };
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  console.log(user); // { user_name: "Himanshu", id: 123, ... }
+
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -122,7 +125,7 @@ const Header = () => {
             >
               <User size={18} className="text-neutral-600 sm:w-5 sm:h-5" />
               {/* Username only visible on larger screens */}
-              <span className="hidden lg:block text-sm font-medium text-neutral-700">Alan-W-Arch</span>
+              <span className="hidden lg:block text-sm font-medium text-neutral-700">{user?.name || "Guest"}</span>
               <ChevronDown size={12} className="text-neutral-500 sm:w-3.5 sm:h-3.5" />
             </button>
 
@@ -137,8 +140,8 @@ const Header = () => {
                   className="absolute right-0 top-full mt-2 w-56 sm:w-64 bg-secondary rounded-lg shadow-lg border border-border py-1 z-dropdown"
                 >
                   <div className="px-4 py-3 border-b border-divider">
-                    <p className="font-medium text-primary">Alan-W-Arch</p>
-                    <p className="text-sm text-neutral-500">alan@kmrl.com</p>
+                    <p className="font-medium text-primary">{user?.name || "Guest"}</p>
+                    <p className="text-sm text-neutral-500">-----@kmrl.com</p>
                   </div>
                   
                   {/* Language Selection */}

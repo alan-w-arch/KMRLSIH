@@ -3,3 +3,9 @@ uvicorn[standard]
 python-multipart
 aiohttp
 cloudinary
+supabase
+passlib
+python-jose
+bcrypt
+pydantic
+python-dotenv

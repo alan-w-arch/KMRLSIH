@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import { useLanguage } from "../context/LanguageContext";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import StatsShow from "../components/StatsShow";
-import UploadDoc from "../components/UploadDoc";
 import RecentDocuments from "../components/RecentDocuments";
 import Header from "../components/Header";
-
+import FloatingMenu from "../components/FloatingMenu";
+import SearchDrawer from "../components/SearchDrawer";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // backend URL from env
   const BACKEND_URL =
@@ -21,6 +21,15 @@ const Dashboard = () => {
     GET_URL: `${BACKEND_URL}/url`,
   };
 
+  const handleFileUpload = () => {
+    console.log("Upload File Clicked");
+    // call backend: `${BACKEND_URL}/file`
+  };
+
+  const handleUrlUpload = () => {
+    console.log("Upload URL Clicked");
+    // call backend: `${BACKEND_URL}/url`
+  };
   // Simulate processing status polling
   const pollProcessingStatus = (fileId) => {
     // In a real implementation, you would poll your backend for status updates
@@ -64,11 +73,15 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-secondary">
-      <Header/>
+      <Header />
 
       <div className="flex">
         {/* Sidebar */}
-        <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <Sidebar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          setSearchOpen={setSearchOpen}
+        />
 
         {/* Main Content */}
         <main className="flex-1 p-4 lg:p-6 max-w-full">
@@ -76,11 +89,13 @@ const Dashboard = () => {
 
           <StatsShow />
 
-          {/* Upload Section */}
-          <UploadDoc />
-
           {/* Recent Documents */}
           <RecentDocuments />
+
+          <FloatingMenu
+            onFileClick={handleFileUpload}
+            onLinkClick={handleUrlUpload}
+          />
         </main>
       </div>
     </div>

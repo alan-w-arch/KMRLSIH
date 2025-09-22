@@ -1,7 +1,8 @@
 import { useLanguage } from "../context/LanguageContext";
-import { FileText, Search } from "lucide-react";
+import { FileText, Search, Link2, BookDashed } from "lucide-react";
+import { Link } from "react-router-dom";
 
-function Sidebar({ sidebarOpen, setSidebarOpen }) {
+function Sidebar({ sidebarOpen, setSidebarOpen, setSearchOpen }) {
   const { t } = useLanguage();
 
   return (
@@ -17,23 +18,34 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
             href="#"
             className="flex items-center gap-3 px-3 py-2 bg-accent/10 text-accent rounded-lg font-medium"
           >
-            <FileText size={20} />
+            <BookDashed size={20} />
             {t.dashboard}
           </a>
-          <a
-            href="#"
+
+          <Link
+            to="/uploadfile"
             className="flex items-center gap-3 px-3 py-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
           >
             <FileText size={20} />
             {t.documents}
-          </a>
-          <a
-            href="#"
+          </Link>
+
+          <Link
+            to="/uploadurl"
             className="flex items-center gap-3 px-3 py-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
+          >
+            <Link2 size={20} />
+            {t.uploadLink}
+          </Link>
+
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="flex items-center gap-3 w-full text-left px-3 py-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"
           >
             <Search size={20} />
             {t.search}
-          </a>
+          </button>
+
           <a
             href="#"
             className="flex items-center gap-3 px-3 py-2 text-neutral-600 hover:bg-neutral-100 rounded-lg transition-colors"

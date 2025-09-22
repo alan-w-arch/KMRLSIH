@@ -2,15 +2,38 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "../styles/login.css";
 import { useNavigate } from "react-router-dom";
+import { login } from "../api/services";
 
 export default function Login() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const [employeeId, setEmployeeId] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    // TODO: Add authentication logic
-    navigate("/dashboard");
+  const handleLogin = async (e) => {
+    e.preventDefault(); // prevent page reload
+    setLoading(true);
+    setError("");
+
+    try {
+      const data = await login(employeeId, password);
+      console.log("Login Success:", data);
+
+      // store token or user info (localStorage / context)
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      // navigate to dashboard
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Login failed:", err.response?.data || err.message);
+      setError(
+        err.response?.data?.detail || "Login failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -248,6 +271,8 @@ export default function Login() {
                             <input
                               className="w-full px-4 py-2 rounded-lg bg-[#f1f6fb] border border-[#e0e9f5] focus:outline-none focus:shadow-[0_0_18px_rgba(255,122,60,0.12)] transition"
                               placeholder="Employee ID"
+                              value={employeeId}
+                              onChange={(e) => setEmployeeId(e.target.value)}
                               autoComplete="username"
                             />
                           </motion.div>
@@ -261,6 +286,8 @@ export default function Login() {
                               className="w-full px-4 py-2 rounded-lg bg-[#f1f6fb] border border-[#e0e9f5] focus:outline-none focus:shadow-[0_0_18px_rgba(255,122,60,0.12)] transition"
                               placeholder="Password"
                               type="password"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
                               autoComplete="current-password"
                             />
                           </motion.div>
@@ -269,6 +296,7 @@ export default function Login() {
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
                             type="submit"
+                            disabled={loading}
                             className="relative w-full py-2 rounded-md text-white font-medium overflow-hidden"
                             style={{
                               background: "linear-gradient(90deg,#0f2b4a,#10243b)",
@@ -278,7 +306,7 @@ export default function Login() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 }}
                           >
-                            <span className="relative z-10">Sign In</span>
+                            <span className="relative z-10">{loading ? "Signing in..." : "Sign In"}</span>
                             <motion.span
                               className="absolute inset-0 block pointer-events-none"
                               animate={{ x: ["-120%", "120%"] }}
@@ -306,3 +334,41 @@ export default function Login() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
