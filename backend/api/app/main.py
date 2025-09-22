@@ -21,7 +21,7 @@ class URLRequest(BaseModel):
     url: str
 
 
-@app.post("/url")
+@app.post("/url")   
 async def receive_url(request: URLRequest):
     file_url = request.url
     filename = file_url.split("/")[-1]
