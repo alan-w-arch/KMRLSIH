@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import StatsShow from "../components/StatsShow";
-import UploadDoc from "../components/UploadDoc";
 import RecentDocuments from "../components/RecentDocuments";
 import Header from "../components/Header";
 import FloatingMenu from "../components/FloatingMenu";
-
+import SearchDrawer from "../components/SearchDrawer";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   // backend URL from env
   const BACKEND_URL =
@@ -73,11 +73,15 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-secondary">
-      <Header/>
+      <Header />
 
       <div className="flex">
         {/* Sidebar */}
-        <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+        <Sidebar
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
+          setSearchOpen={setSearchOpen}
+        />
 
         {/* Main Content */}
         <main className="flex-1 p-4 lg:p-6 max-w-full">
@@ -85,13 +89,13 @@ const Dashboard = () => {
 
           <StatsShow />
 
-          {/* Upload Section */}
-          <UploadDoc />
-
           {/* Recent Documents */}
           <RecentDocuments />
 
-          <FloatingMenu onFileClick={handleFileUpload} onLinkClick={handleUrlUpload} />
+          <FloatingMenu
+            onFileClick={handleFileUpload}
+            onLinkClick={handleUrlUpload}
+          />
         </main>
       </div>
     </div>

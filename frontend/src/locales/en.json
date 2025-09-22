@@ -1,7 +1,7 @@
 {
   "appName": "KMRL Doc Intelligence",
   "dashboard": "Dashboard",
-  "documents": "Documents",
+  "documents": "Upload Documents",
   "search": "Search",
   "analytics": "Analytics",
   "settings": "Settings",
@@ -22,6 +22,7 @@
   "searchTip3": "Search within document content",
 
   "uploadDocument": "Upload Document",
+  "uploadLink": "Upload Link",
   "dragDrop": "Click to upload or drag and drop",
   "uploadInfo": "Supports PDF, DOC, DOCX, XLS, XLSX, and all image formats (PNG, JPG, JPEG, GIF, SVG, WEBP) up to 10MB",
   "urlUpload": "Or upload from URL",
