@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { useLanguage } from "../context/LanguageContext";
 import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import StatsShow from "../components/StatsShow";
 import UploadDoc from "../components/UploadDoc";
 import RecentDocuments from "../components/RecentDocuments";
 import Header from "../components/Header";
+import FloatingMenu from "../components/FloatingMenu";
 
 
 const Dashboard = () => {
@@ -21,6 +21,15 @@ const Dashboard = () => {
     GET_URL: `${BACKEND_URL}/url`,
   };
 
+  const handleFileUpload = () => {
+    console.log("Upload File Clicked");
+    // call backend: `${BACKEND_URL}/file`
+  };
+
+  const handleUrlUpload = () => {
+    console.log("Upload URL Clicked");
+    // call backend: `${BACKEND_URL}/url`
+  };
   // Simulate processing status polling
   const pollProcessingStatus = (fileId) => {
     // In a real implementation, you would poll your backend for status updates
@@ -81,6 +90,8 @@ const Dashboard = () => {
 
           {/* Recent Documents */}
           <RecentDocuments />
+
+          <FloatingMenu onFileClick={handleFileUpload} onLinkClick={handleUrlUpload} />
         </main>
       </div>
     </div>
