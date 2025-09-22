@@ -128,15 +128,32 @@ def _save_index(index, embeddings: np.ndarray, metadatas: List[Dict], out_dir: P
         for m in metadatas:
             f.write(json.dumps(m, ensure_ascii=False) + "\n")
 
-
 def _load_index(out_dir: Path):
-    index = faiss.read_index(str(out_dir / f"{INDEX_NAME}.faiss"))
-    metas = []
-    with open(out_dir / METADATA_FILE, "r", encoding="utf-8") as f:
-        for line in f:
-            metas.append(json.loads(line))
-    return index, metas
+    index_path = out_dir / f"{INDEX_NAME}.faiss"
+    metadata_path = out_dir / METADATA_FILE
 
+    # Load FAISS index (create empty if not exists)
+    if index_path.exists():
+        index = faiss.read_index(str(index_path))
+    else:
+        # create empty index (adjust dimension as needed)
+        index = faiss.IndexFlatL2(384)  # replace 384 with your embedding dim
+
+    metas = []
+
+    # Load metadata safely
+    if metadata_path.exists():
+        with open(metadata_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue  # skip empty lines
+                try:
+                    metas.append(json.loads(line))
+                except json.JSONDecodeError:
+                    print(f"Warning: skipping invalid JSON line: {line}")
+
+    return index, metas
 
 # -----------------------------
 # Public: build + save with append + dedup

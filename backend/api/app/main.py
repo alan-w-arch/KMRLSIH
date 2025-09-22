@@ -15,9 +15,14 @@ load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+if not SUPABASE_URL or not SUPABASE_KEY:
+    raise RuntimeError("Supabase credentials not found in environment")
+print(SUPABASE_KEY)
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+print(supabase.table("users").select("*").limit(1).execute())
 print(supabase)
 
 app = FastAPI()
@@ -36,7 +41,7 @@ app.add_middleware(
 
 # Models - Match your login form
 class LoginRequest(BaseModel):
-    employee_id: str
+    user_id: str
     password: str
 
 class URLRequest(BaseModel):
@@ -52,40 +57,39 @@ class SUMMARYRequest(BaseModel):
     doc_id: str
 
 
-# Helper functions
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)    
-
-# Routes
 @app.post("/login")
 async def login(request: LoginRequest):
     try:
-        # Get user from database using employee_id as primary key
-        response = supabase.table("users").select("*").eq("id", request.employee_id).execute()
-        
+        # Fetch user by ID
+        response = (
+            supabase.table("users")
+            .select("*")
+            .eq("id", request.user_id)
+            .execute()
+        )
+
         if not response.data:
-            raise HTTPException(status_code=401, detail="Invalid employee ID or password")
-    
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
         user = response.data[0]
-        
-        # Verify password
-        if not verify_password(request.password, user["password"]):
-            raise HTTPException(status_code=401, detail="Invalid employee ID or password")
-        
+
+        # Successful login
         return {
             "success": True,
             "user": {
                 "id": user["id"],
                 "name": user["name"],
                 "department": user["department"],
-                "role": user["role"]
-            }
+                "role": user["role"],
+            },
         }
-    
+
     except HTTPException:
-        raise
+        raise  # re-raise known errors
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Login failed")
+        # Log the error (replace with proper logging in prod)
+        print("Login error:", str(e))
+        raise HTTPException(status_code=500, detail="Login failed. Please try again.")
 
 @app.get("/profile/{employee_id}")
 async def get_profile(employee_id: str):
@@ -112,45 +116,54 @@ async def receive_url(request: URLRequest):
     filename = file_url.split("/")[-1]
     file_location = os.path.join(UPLOAD_DIR, filename)
 
+    # Download file asynchronously
     async with aiohttp.ClientSession() as session:
         async with session.get(file_url) as resp:
             if resp.status != 200:
                 return {"error": f"Failed to download file, status: {resp.status}"}
-            
             content = await resp.read()
             with open(file_location, "wb") as f:
                 f.write(content)
 
+    # Process file using your NLP pipeline
     output = process_file(file_location)
 
+    # Upload to Cloudinary
     upload_result = cloudinary.uploader.upload(content, resource_type="auto")
 
-    data = {
+    # Get department ID once
+    dept_resp = supabase.table("departments").select("dept_id").eq("name", request.dept_name).execute()
+    if not dept_resp.data:
+        raise HTTPException(status_code=400, detail="Department not found")
+    dept_id = dept_resp.data[0]["dept_id"]
+
+    # Insert document
+    doc_data = {
         "title": filename,
-        "classification": "Backend Head",
+        "department": dept_id,
         "url": upload_result.get("secure_url"),
         "medium": "url",
         "priority": "normal",
     }
-    response = supabase.table("documents").insert(data).execute()
-
-    inserted_doc = response.data[0] if response.data else None
+    doc_resp = supabase.table("documents").insert(doc_data).execute()
+    inserted_doc = doc_resp.data[0] if doc_resp.data else None
 
     if inserted_doc:
         doc_id = inserted_doc["doc_id"]
+        # Insert summary
         supabase.table("summaries").insert({
             "doc_id": doc_id, 
             "content": output["doc_summary"]
-            }).execute()
+        }).execute()
+
+        # Insert transexion
         supabase.table("transexions").insert({
             "from_user": request.user_id,
-            "to_department": supabase.table("departments") \
-                       .select("dept_id") \
-                       .eq("name", request.dept_name) \
-                       .execute(),
+            "to_department": dept_id,
             "doc_id": doc_id
-        })
+        }).execute()
 
+    # Clean up local file
     os.remove(file_location)
 
     return {
@@ -161,46 +174,61 @@ async def receive_url(request: URLRequest):
         "cloudinary_url": upload_result.get("secure_url")
     }
 
-
 @app.post("/file")
-async def receive_file(file: UploadFile = File(...), user_id: str = Form(...), dept_name: str = Form):
+async def receive_file(
+    file: UploadFile = File(...),
+    user_id: str = Form(...),
+    dept_name: str = Form(...)
+):
     file_location = os.path.join(UPLOAD_DIR, file.filename)
 
+    # Read and save file locally
     content = await file.read()
     with open(file_location, "wb") as f:
         f.write(content)
 
-    output = process_file(file_location)
+    try:
+        # Process file
+        output = process_file(file_location)
 
-    upload_result = cloudinary.uploader.upload(content, resource_type="auto")
+        # Get department ID
+        dept_resp = supabase.table("departments").select("dept_id").eq("name", dept_name).execute()
+        if not dept_resp.data:
+            raise HTTPException(status_code=400, detail="Department not found")
+        dept_id = dept_resp.data[0]["dept_id"]
 
-    data = {
-        "title": file.filename,
-        "classification": "Backend Head",
-        "url": upload_result.get("secure_url"),
-        "medium": "direct file",
-        "priority": "normal",
-    }
-    response = supabase.table("documents").insert(data).execute()
+        # Upload to Cloudinary
+        upload_result = cloudinary.uploader.upload(content, resource_type="auto")
 
-    inserted_doc = response.data[0] if response.data else None
+        # Insert document
+        doc_data = {
+            "title": file.filename,
+            "department": dept_id,
+            "url": upload_result.get("secure_url"),
+            "medium": "direct file",
+            "priority": "normal",
+        }
+        doc_resp = supabase.table("documents").insert(doc_data).execute()
+        inserted_doc = doc_resp.data[0] if doc_resp.data else None
 
-    if inserted_doc:
-        doc_id = inserted_doc["doc_id"]
-        supabase.table("summaries").insert({
-            "doc_id": doc_id,
-            "content": output["doc_summary"]
-        })
-        supabase.table("transexions").insert({
-            "from_user": user_id,
-            "to_department": supabase.table("departments") \
-                       .select("dept_id") \
-                       .eq("name", dept_name) \
-                       .execute(),
-            "doc_id": doc_id
-        })
-    
-    os.remove(file_location)
+        if inserted_doc:
+            doc_id = inserted_doc["doc_id"]
+            # Insert summary
+            supabase.table("summaries").insert({
+                "doc_id": doc_id,
+                "content": output.get("doc_summary", "")
+            }).execute()
+
+            # Insert transexion
+            supabase.table("transexions").insert({
+                "from_user": user_id,
+                "to_department": dept_id,
+                "doc_id": doc_id
+            }).execute()
+
+    finally:
+        # Always clean up local file
+        os.remove(file_location)
 
     return {
         "filename": file.filename,
