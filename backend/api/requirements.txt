@@ -4,7 +4,11 @@ python-multipart
 aiohttp
 cloudinary
 supabase
+<<<<<<< HEAD
 passlib
 python-jose
 bcrypt
 pydantic
+=======
+python-dotenv
+>>>>>>> database/supabaseConnection
