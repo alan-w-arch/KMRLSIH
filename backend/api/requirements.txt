@@ -3,3 +3,5 @@ uvicorn[standard]
 python-multipart
 aiohttp
 cloudinary
+supabase
+python-dotenv
