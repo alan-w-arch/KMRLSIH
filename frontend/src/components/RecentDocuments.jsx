@@ -86,19 +86,6 @@ function RecentDocuments() {
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative">
-              <Search
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400"
-                size={16}
-              />
-              <input
-                type="text"
-                placeholder={t.searchPlaceholder}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent w-full sm:w-auto"
-              />
-            </div>
             <button className="flex items-center justify-center gap-2 px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors">
               <Filter size={16} />
               Filter
