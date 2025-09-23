@@ -3,6 +3,8 @@ import { Search, Bell, User, Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "../context/LanguageContext";
 import SearchDrawer from "./SearchDrawer";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -10,7 +12,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
 
   const { language, setLanguage, t } = useLanguage();
-
+  const { user, logout } = useAuth();
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
 
@@ -19,8 +21,10 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     if (isSearchOpen) setSearchQuery("");
   };
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  console.log(user); // { user_name: "Himanshu", id: 123, ... }
+  const handleSignOut = () => {
+    logout();          // clears context + localStorage
+    navigate("/login"); // redirect to login
+  };
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
@@ -47,6 +51,8 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     setLanguage(lang);
     setIsUserDropdownOpen(false); // Close dropdown after selection
   };
+
+
 
   // Document Icon Component matching your logo
   const DocumentIcon = ({ size = 16, className = "" }) => (
@@ -229,7 +235,9 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                     {t.preferences}
                   </button>
                   <div className="border-t border-divider mt-1 pt-1">
-                    <button className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors">
+                    <button
+                    onClick={handleSignOut}
+                    className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors">
                       {t.signOut}
                     </button>
                   </div>

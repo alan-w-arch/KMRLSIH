@@ -2,29 +2,33 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import "../styles/login.css";
 import { useNavigate } from "react-router-dom";
-import { login } from "../api/services";
+import { login as loginApi } from "../api/services"; // rename to avoid clash
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // prevent page reload
+    e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      const data = await login(employeeId, password);
+      // call backend API
+      const data = await loginApi(employeeId, password);
       console.log("Login Success:", data);
 
-      // store token or user info (localStorage / context)
-      localStorage.setItem("user", JSON.stringify(data.user));
+      // ✅ update AuthContext (this also updates localStorage)
+      login(data.user);
 
-      // navigate to dashboard
+      // redirect
       navigate("/dashboard");
     } catch (err) {
       console.error("Login failed:", err.response?.data || err.message);

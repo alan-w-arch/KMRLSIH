@@ -7,31 +7,72 @@ import Login from "../pages/Login";
 import Dashboard from "../pages/Dashboard";
 import UploadDocPage from "../pages/UploadDocPage";
 import UploadUrlPage from "../pages/UploadUrlPage";
+import ProtectedRoute from "./ProtectedRoute";
+import { useAuth } from "../context/AuthContext";
 
 export default function AppRoutes() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      {/* Sidebar */}
-      <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+    <Routes>
+      {/* Public Route (Login Page) */}
+      <Route
+        path="/"
+        element={user ? <Navigate to="/dashboard" replace /> : <Login />}
+      />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-auto">
-        <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      {/* Private Routes - With Layout */}
+      <Route
+        path="/*"
+        element={
+          user ? (
+            <div className="flex h-screen overflow-hidden">
+              {/* Sidebar */}
+              <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-        <main className="flex-1 pt-16 lg:pt-16 ml-0 lg:ml-64 p-4 lg:p-6 min-h-[calc(100vh-8rem)]">
-          <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/uploadfile" element={<UploadDocPage />} />
-            <Route path="/uploadurl" element={<UploadUrlPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
+              {/* Main Content */}
+              <div className="flex-1 flex flex-col overflow-auto">
+                <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-        <Footer />
-      </div>
-    </div>
+                <main className="flex-1 pt-16 lg:pt-16 ml-0 lg:ml-64 p-4 lg:p-6 min-h-[calc(100vh-8rem)]">
+                  <Routes>
+                    <Route
+                      path="dashboard"
+                      element={
+                        <ProtectedRoute>
+                          <Dashboard />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="uploadfile"
+                      element={
+                        <ProtectedRoute>
+                          <UploadDocPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="uploadurl"
+                      element={
+                        <ProtectedRoute>
+                          <UploadUrlPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                  </Routes>
+                </main>
+
+                <Footer />
+              </div>
+            </div>
+          ) : (
+            <Navigate to="/" replace />
+          )
+        }
+      />
+    </Routes>
   );
 }
