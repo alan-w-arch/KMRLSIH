@@ -1,378 +1,167 @@
-import { useState, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import "../styles/login.css";
 import { useNavigate } from "react-router-dom";
-import { login as loginApi } from "../api/services"; // rename to avoid clash
+import { login as loginApi } from "../api/services";
 import { useAuth } from "../context/AuthContext";
+import gsap from "gsap";
 
 export default function Login() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
-
   const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const trainRef = useRef(null);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     try {
-      // call backend API
       const data = await loginApi(employeeId, password);
-      console.log("Login Success:", data);
-
-      // ✅ update AuthContext (this also updates localStorage)
       login(data.user);
-
-      // redirect
       navigate("/dashboard");
     } catch (err) {
-      console.error("Login failed:", err.response?.data || err.message);
-      setError(
-        err.response?.data?.detail || "Login failed. Please try again."
-      );
+      setError(err.response?.data?.detail || "Login failed. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    gsap.to(trainRef.current, {
+      y: "-=10",
+      repeat: -1,
+      yoyo: true,
+      duration: 1.5,
+      ease: "power1.inOut",
+    });
+  }, []);
+
   return (
-    <div className="h-full flex items-center justify-center bg-gray-50 overflow-hidden">
-      {/* Outer framed panel */}
-      <div className="w-full h-screen relative overflow-hidden bg-transparent">
-        {/* Background split layer */}
-        <div className="absolute inset-0 bg-split-layer" />
-
-        {/* Animated background elements */}
-        
-        {/* Floating document icons */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(8)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute text-white/05"
-              initial={{
-                opacity: 0,
-                y: Math.random() * 100 + 50,
-                x: Math.random() * 100 - 50,
-                rotate: Math.random() * 20 - 10
-              }}
-              animate={{
-                opacity: [0, 0.1, 0],
-                y: [Math.random() * 100, Math.random() * 500 + 200],
-                x: [Math.random() * 100 - 50, Math.random() * 200 - 100],
-                rotate: Math.random() * 360
-              }}
-              transition={{
-                duration: Math.random() * 10 + 15,
-                repeat: Infinity,
-                delay: Math.random() * 5,
-                ease: "linear"
-              }}
-              style={{
-                fontSize: `${Math.random() * 20 + 16}px`,
-                left: `${Math.random() * 100}%`,
-              }}
-            >
-              📄
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Metro line route animation */}
-        <motion.div 
-          className="absolute left-0 top-0 w-7/12 h-full pointer-events-none"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.5 }}
-        >
-          {/* Metro line path */}
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <motion.path
-              d="M10,10 C30,30 40,60 20,80 C0,100 40,90 60,70 S80,30 90,10"
-              fill="none"
-              stroke="rgba(255,122,61,0.15)"
-              strokeWidth="0.5"
-              strokeDasharray="2 3"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-            />
-          </svg>
-          
-          {/* Moving metro train icon along path */}
-          <motion.div
-            className="absolute w-4 h-4 text-orange-500"
-            initial={{ offsetDistance: "0%", opacity: 0 }}
-            animate={{ 
-              offsetDistance: "100%", 
-              opacity: [0, 1, 1, 0] 
-            }}
-            transition={{
-              offsetDistance: { duration: 8, repeat: Infinity, ease: "linear" },
-              opacity: { duration: 8, repeat: Infinity, times: [0, 0.1, 0.9, 1] }
-            }}
-            style={{
-              offsetPath: `path("M10,10 C30,30 40,60 20,80 C0,100 40,90 60,70 S80,30 90,10")`,
-            }}
-          >
-            🚆
-          </motion.div>
-        </motion.div>
-
-        {/* Pulsing connection nodes */}
+    <div className="flex flex-col md:flex-row w-full h-screen overflow-hidden">
+      {/* Left Side - Cover Image */}
+      <div className="relative w-full md:w-3/5 h-[60vh] md:h-full flex items-center justify-center overflow-hidden">
+        <img
+          ref={trainRef}
+          src="/train3.jpg"
+          alt="Train Cover"
+          className="w-full h-full object-cover"
+        />
+        {/* Clouds */}
         {[...Array(5)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute w-3 h-3 rounded-full bg-orange-400/30 pointer-events-none"
-            style={{
-              left: `${15 + (i * 18)}%`,
-              top: `${20 + (i * 12)}%`,
-            }}
-            animate={{
-              scale: [1, 1.8, 1],
-              opacity: [0.7, 0.2, 0.7],
-            }}
+            className="absolute w-20 h-10 md:w-40 md:h-20 bg-white rounded-full opacity-20"
+            style={{ top: `${10 + i * 15}%`, left: `${-30 + i * 20}%` }}
+            animate={{ x: ["-30%", "120%"] }}
             transition={{
-              duration: 3,
               repeat: Infinity,
-              delay: i * 0.6,
+              duration: 30 + i * 5,
+              ease: "linear",
             }}
           />
         ))}
+      </div>
 
-        {/* Content grid */}
-        <div className="relative z-20 grid grid-cols-12 h-full">
-          {/* Left column: heading + train */}
-          <div className="col-span-7 px-14 py-12 flex flex-col items-start justify-center text-white">
-            {/* Animated title */}
-            <motion.h1 
-              className="font-playfair text-4xl md:text-5xl leading-snug mb-8"
-              initial={{ opacity: 0, y: 20 }}
+      {/* Right Side - Content */}
+      <div className="w-full md:w-2/5 h-full flex flex-col items-center justify-center px-6 md:px-16 bg-[#111]">
+        {!open ? (
+          <>
+            <motion.h1
+              className="text-3xl sm:text-4xl md:text-5xl text-center font-bold mb-4 md:mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-white-500 to-slate-500"
+              initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
             >
               KMRL
               <br />
-              <motion.span 
-                className="block text-3xl md:text-4xl font-medium tracking-wide"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.8 }}
-              >
+              <span className="text-xl sm:text-2xl md:text-3xl font-medium bg-clip-text text-transparent bg-gradient-to-r from-white via-white-500 to-slate-500">
                 Document Intelligence
-              </motion.span>
+              </span>
             </motion.h1>
 
-            <div className="mt-auto w-full flex items-end">
-              <div className="relative w-full">
-                <motion.img
-                  src="/train.png"
-                  alt="KMRL Metro"
-                  className="w-[520px] md:w-[600px] drop-shadow-[0_25px_40px_rgba(9,15,33,0.5)]"
-                  style={{ userSelect: "none", pointerEvents: "none" }}
-                  initial={{ x: -100, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ duration: 1.2, ease: "easeOut" }}
-                />
-                {/* sweeping light animation */}
-                <motion.div
-                  className="absolute -left-[45%] top-6 w-[160%] h-[160%] opacity-10 pointer-events-none"
-                  animate={{ x: ["-35%", "35%"] }}
-                  transition={{ repeat: Infinity, duration: 6, ease: "linear" }}
-                  style={{
-                    background:
-                      "radial-gradient(1200px 360px at 30% 30%, rgba(255,255,255,0.06), transparent 30%)",
-                    transform: "rotate(-6deg)",
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+            <motion.p
+              className="text-gray-300 mb-4 md:mb-8 text-center text-sm sm:text-base md:text-lg"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              The metro-inspired AI platform for smarter, faster, and safer
+              document management.
+            </motion.p>
 
-          {/* Right column: tagline + button or login */}
-          <div className="col-span-5 flex flex-col items-center justify-center text-center px-10 relative">
-            {!open && (
-              <>
-                <motion.p 
-                  className="text-gray-600 text-lg mb-6"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5, duration: 0.8 }}
-                >
-                  The metro-inspired AI platform for smarter, faster, and safer
-                  document management.
-                </motion.p>
+            <motion.button
+              className="px-8 py-3 md:px-12 md:py-4 rounded-full bg-gradient-to-r from-white via-white-500 to-slate-500 text-black text-base sm:text-lg md:text-xl font-semibold shadow-lg hover:shadow-xl"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setOpen(true)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+            >
+              Get Started
+            </motion.button>
+          </>
+        ) : (
+          <AnimatePresence>
+            <motion.div
+              key="login"
+              className="w-full sm:w-4/5 md:w-full bg-[#222] rounded-3xl p-6 sm:p-8 shadow-lg flex flex-col justify-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.8 }}
+            >
+              <h3 className="text-2xl sm:text-3xl md:text-3xl font-bold text-white text-center mb-4">
+                Login
+              </h3>
+              <p className="text-gray-300 text-center mb-4 sm:mb-6 text-sm sm:text-base">
+                Enter your credentials to continue
+              </p>
+
+              <form className="space-y-4" onSubmit={handleLogin}>
+                <input
+                  type="text"
+                  placeholder="Employee ID"
+                  value={employeeId}
+                  onChange={(e) => setEmployeeId(e.target.value)}
+                  className="w-full px-4 py-3 sm:px-5 sm:py-4 rounded-2xl bg-[#333] placeholder-gray-400 text-white text-sm sm:text-lg md:text-lg focus:outline-none focus:ring-2 focus:ring-slate-500 transition"
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-4 py-3 sm:px-5 sm:py-4 rounded-2xl bg-[#333] placeholder-gray-400 text-white text-sm sm:text-lg md:text-lg focus:outline-none focus:ring-2 focus:ring-slate-500 transition"
+                />
+                {error && <p className="text-red-500 text-sm">{error}</p>}
                 <motion.button
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setOpen(true)}
-                  className="relative inline-flex items-center gap-3 px-6 py-3 rounded-full bg-gradient-to-r from-[#ff7a3d] to-[#ff5a2a] shadow-lg text-white font-medium"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7, duration: 0.5 }}
+                  type="submit"
+                  disabled={loading}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-full py-3 sm:py-4 rounded-2xl bg-gradient-to-r from-white via-white-500 to-slate-500 text-black text-base sm:text-lg md:text-xl font-semibold shadow-lg"
                 >
-                  <span>Get Started</span>
-                  <motion.span
-                    className="absolute inset-0 rounded-full pointer-events-none"
-                    aria-hidden
-                    animate={{ x: ["-100%", "120%"] }}
-                    transition={{
-                      repeat: Infinity,
-                      duration: 2.2,
-                      ease: "linear",
-                    }}
-                  />
+                  {loading ? "Signing in..." : "Sign In"}
                 </motion.button>
-              </>
-            )}
+              </form>
 
-            {/* Diamond login card */}
-            <AnimatePresence>
-              {open && (
-                <motion.div
-                  key="diamond"
-                  initial={{ y: -200, rotate: -12, opacity: 0, scale: 0.9 }}
-                  animate={{ y: 0, rotate: 0, opacity: 1, scale: 1 }}
-                  exit={{ y: -220, rotate: 12, opacity: 0, scale: 0.95 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 90,
-                    damping: 14,
-                    mass: 0.7,
-                  }}
-                  className="relative mt-6"
-                  style={{ perspective: 1200 }}
+              <div className="mt-4 text-center text-gray-400 text-sm">
+                <button
+                  onClick={() => setOpen(false)}
+                  className="underline hover:text-white transition"
                 >
-                  <div className="diamond-outer">
-                    <div className="diamond-inner">
-                      <button
-                        aria-label="Close login"
-                        onClick={() => setOpen(false)}
-                        className="absolute top-0 right-3 w-9 h-9 rounded-full hover:border bg-white shadow-md grid place-items-center text-sm text-gray-600"
-                      >
-                        ✕
-                      </button>
-
-                      <div className="px-6 py-6 w-full">
-                        <h3 className="text-center text-2xl font-playfair text-[#10243b] mb-4">
-                          Login
-                        </h3>
-
-                        <form
-                          className="space-y-3"
-                          onSubmit={handleLogin}
-                        >
-                          <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.2 }}
-                          >
-                            <input
-                              className="w-full px-4 py-2 rounded-lg bg-[#f1f6fb] border border-[#e0e9f5] focus:outline-none focus:shadow-[0_0_18px_rgba(255,122,60,0.12)] transition"
-                              placeholder="Employee ID"
-                              value={employeeId}
-                              onChange={(e) => setEmployeeId(e.target.value)}
-                              autoComplete="username"
-                            />
-                          </motion.div>
-                          
-                          <motion.div
-                            initial={{ opacity: 0, x: 20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.3 }}
-                          >
-                            <input
-                              className="w-full px-4 py-2 rounded-lg bg-[#f1f6fb] border border-[#e0e9f5] focus:outline-none focus:shadow-[0_0_18px_rgba(255,122,60,0.12)] transition"
-                              placeholder="Password"
-                              type="password"
-                              value={password}
-                              onChange={(e) => setPassword(e.target.value)}
-                              autoComplete="current-password"
-                            />
-                          </motion.div>
-
-                          <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            type="submit"
-                            disabled={loading}
-                            className="relative w-full py-2 rounded-md text-white font-medium overflow-hidden"
-                            style={{
-                              background: "linear-gradient(90deg,#0f2b4a,#10243b)",
-                              boxShadow: "0 8px 20px rgba(255,122,60,0.18)",
-                            }}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
-                          >
-                            <span className="relative z-10">{loading ? "Signing in..." : "Sign In"}</span>
-                            <motion.span
-                              className="absolute inset-0 block pointer-events-none"
-                              animate={{ x: ["-120%", "120%"] }}
-                              transition={{
-                                repeat: Infinity,
-                                duration: 1.6,
-                                ease: "linear",
-                              }}
-                              style={{
-                                background:
-                                  "linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%)",
-                              }}
-                            />
-                          </motion.button>
-                        </form>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
+                  Back
+                </button>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        )}
       </div>
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

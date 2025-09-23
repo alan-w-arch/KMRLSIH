@@ -64,6 +64,8 @@ function UploadDoc() {
         // Create FormData for file upload
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("user_id", localStorage.getItem("user_id"));
+        formData.append("dept_name", "Engineering");
 
         // Upload file with progress tracking
         const response = await axios.post(API_ENDPOINTS.UPLOAD_FILE, formData, {

@@ -13,7 +13,7 @@ export const getProfile = async (user_id) => {
 
 // Uploads
 export const uploadUrl = async (user_id, url, dept_name) => {
-  const response = await api.post("/url", { user_id, url, dept_name });
+  const response = await api.post("/documents/url", { user_id, url, dept_name });
   return response.data;
 };
 
@@ -23,7 +23,7 @@ export const uploadFile = async (file, user_id, dept_name) => {
   formData.append("user_id", user_id);
   formData.append("dept_name", dept_name);
 
-  const response = await api.post("/file", formData, {
+  const response = await api.post("/documents/file", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 
