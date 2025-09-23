@@ -1,0 +1,112 @@
+import os
+import aiohttp
+import cloudinary.uploader
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from api.app.config import supabase
+from api.app.schemas.models import URLRequest, VIEWRequest
+from nlpPipelne.ProcessPipeline import process_file
+
+router = APIRouter()
+UPLOAD_DIR = "./temp"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+@router.post("/url")
+async def receive_url(request: URLRequest):
+    file_url = request.url
+    filename = file_url.split("/")[-1]
+    file_location = os.path.join(UPLOAD_DIR, filename)
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(file_url) as resp:
+            if resp.status != 200:
+                raise HTTPException(status_code=400, detail="Download failed")
+            content = await resp.read()
+            with open(file_location, "wb") as f:
+                f.write(content)
+
+    output = process_file(file_location)
+    upload_result = cloudinary.uploader.upload(content, resource_type="auto")
+
+    dept_resp = supabase.table("departments").select("dept_id").eq("name", request.dept_name).execute()
+    if not dept_resp.data:
+        raise HTTPException(status_code=400, detail="Department not found")
+    dept_id = dept_resp.data[0]["dept_id"]
+
+    doc_resp = supabase.table("documents").insert({
+        "title": filename,
+        "department": dept_id,
+        "url": upload_result.get("secure_url"),
+        "medium": "url",
+        "priority": "normal",
+    }).execute()
+    inserted_doc = doc_resp.data[0] if doc_resp.data else None
+
+    if inserted_doc:
+        doc_id = inserted_doc["doc_id"]
+        supabase.table("summaries").insert({
+            "doc_id": doc_id,
+            "content": output["doc_summary"]
+        }).execute()
+        supabase.table("transexions").insert({
+            "from_user": request.user_id,
+            "to_department": dept_id,
+            "doc_id": doc_id
+        }).execute()
+
+    os.remove(file_location)
+    return {
+        "filename": filename,
+        "processed": output,
+        "cloudinary_url": upload_result.get("secure_url")
+    }
+
+@router.post("/file")
+async def receive_file(
+    file: UploadFile = File(...),
+    user_id: str = Form(...),
+    dept_name: str = Form(...)
+):
+    file_location = os.path.join(UPLOAD_DIR, file.filename)
+    content = await file.read()
+    with open(file_location, "wb") as f:
+        f.write(content)
+
+    try:
+        output = process_file(file_location)
+
+        dept_resp = supabase.table("departments").select("dept_id").eq("name", dept_name).execute()
+        if not dept_resp.data:
+            raise HTTPException(status_code=400, detail="Department not found")
+        dept_id = dept_resp.data[0]["dept_id"]
+
+        upload_result = cloudinary.uploader.upload(content, resource_type="auto")
+
+        doc_resp = supabase.table("documents").insert({
+            "title": file.filename,
+            "department": dept_id,
+            "url": upload_result.get("secure_url"),
+            "medium": "direct file",
+            "priority": "normal",
+        }).execute()
+        inserted_doc = doc_resp.data[0] if doc_resp.data else None
+
+        if inserted_doc:
+            doc_id = inserted_doc["doc_id"]
+            supabase.table("summaries").insert({
+                "doc_id": doc_id,
+                "content": output.get("doc_summary", "")
+            }).execute()
+            supabase.table("transexions").insert({
+                "from_user": user_id,
+                "to_department": dept_id,
+                "doc_id": doc_id
+            }).execute()
+
+    finally:
+        os.remove(file_location)
+
+    return {
+        "filename": file.filename,
+        "processed": output,
+        "cloudinary_url": upload_result.get("secure_url")
+    }
