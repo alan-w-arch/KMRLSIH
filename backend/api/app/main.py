@@ -310,7 +310,6 @@ async def send_email(to_email: str = Form(...),
 #         print("Error sending SMS:", str(e))
 #         raise HTTPException(status_code=500, detail="Failed to send SMS")
 
-# endpoint for transactions
 @app.get("/transactions/{user_id}")
 async def get_transactions(user_id: str):
     try:
@@ -339,12 +338,3 @@ async def get_transactions(user_id: str):
 #         print("Error fetching transactions:", str(e))
 #         raise HTTPException(status_code=500, detail="Failed to fetch transactions")
 
-@app.post("/transactions")
-async def create_transaction(transaction: TransactionRequest):
-    try:
-        response = supabase.table("transexions").insert(transaction.dict()).execute()
-        return {"message": "Transaction created successfully", "transaction": response.data}
-    except Exception as e:
-        print("Error creating transaction:", str(e))
-        raise HTTPException(status_code=500, detail="Failed to create transaction")
-   
