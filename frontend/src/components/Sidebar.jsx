@@ -1,5 +1,5 @@
 import { useLanguage } from "../context/LanguageContext";
-import { FileText, Link2, BookDashed } from "lucide-react";
+import { FileText, Link2, HandHelping, FileClock, FileUp, ChartLine, LayoutDashboard, FolderCode, View, Crown } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 function Sidebar({ sidebarOpen, setSidebarOpen }) {
@@ -27,7 +27,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
             className={linkClasses}
             onClick={() => setSidebarOpen(false)} // close on mobile
           >
-            <BookDashed size={20} />
+            <LayoutDashboard size={20} />
             {t.dashboard}
           </NavLink>
 
@@ -37,7 +37,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
             className={linkClasses}
             onClick={() => setSidebarOpen(false)}
           >
-            <FileText size={20} />
+            <FileUp size={20} />
             {t.documents}
           </NavLink>
 
@@ -51,14 +51,68 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
             {t.uploadLink}
           </NavLink>
 
-          {/* Analytics */}
           <NavLink
-            to="#"
+            to="/history"
+            className={linkClasses}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <FileClock size={20} />
+            {t.history}
+          </NavLink>
+
+          <NavLink
+            to="/help"
+            className={linkClasses}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <HandHelping size={20} />
+            {t.help}
+          </NavLink>
+
+          <NavLink
+            to="/compliance"
             className={linkClasses}
             onClick={() => setSidebarOpen(false)}
           >
             <FileText size={20} />
+            {t.compliance}
+          </NavLink>
+
+          <NavLink
+            to="/viewsummary"
+            className={linkClasses}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <View size={20} />
+            {t.viewsummary}
+          </NavLink>
+
+
+
+          {/* Analytics */}
+          <NavLink
+            to="/analytics"
+            className={linkClasses}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <ChartLine size={20} />
             {t.analytics}
+          </NavLink>
+          <NavLink
+            to="/about"
+            className={linkClasses}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <FolderCode size={20} />
+            {t.about}
+          </NavLink>
+          <NavLink
+            to="/admin-options"
+            className={linkClasses}
+            onClick={() => setSidebarOpen(false)}
+          >
+            <Crown size={20} />
+            {t.adminOptions}
           </NavLink>
         </nav>
       </aside>

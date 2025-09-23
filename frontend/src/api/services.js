@@ -86,6 +86,13 @@ export const getCompliances = async (doc_id) => {
   return response.data;
 };
 
+export const searchDocuments = async (query) => {
+  const response = await api.get("/documents/search", {
+    params: { query }, // backend expects query
+  });
+  return response.data;
+};
+
 // Transactions
 export const getTransactions = async (user_id) => {
   const response = await api.get(`/transexions/${user_id}`);

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getProfile, changeName, changeEmail, changePhone } from '../api/services';
+import { useAuth } from '../context/AuthContext';
 
 const ProfileSettings = () => {
   const [userProfile, setUserProfile] = useState(null);
@@ -7,28 +8,36 @@ const ProfileSettings = () => {
   const [editingField, setEditingField] = useState(null);
   const [formData, setFormData] = useState({});
   const [message, setMessage] = useState({ type: '', text: '' });
+  const { user } = useAuth();
 
   useEffect(() => {
     loadUserProfile();
   }, []);
 
   const loadUserProfile = async () => {
-    try {
-      setLoading(true);
-      const profile = await getProfile('current-user-id');
-      setUserProfile(profile);
-      setFormData({
-        name: profile.name || '',
-        email: profile.email || '',
-        phone: profile.phone || '',
-        department: profile.department || ''
-      });
-    } catch (error) {
-      showMessage('error', 'Failed to load profile');
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const profile = await getProfile(user?.id);
+    if (!profile) throw new Error('Profile not found');
+
+    // Access the first element in the user array
+    const userData = profile.user[0]; 
+
+    setUserProfile(userData);
+    console.log(userData);
+
+    setFormData({
+      name: userData.name || '',
+      email: userData.email || '',
+      phone: userData.phone || '',
+      department: userData.department || ''
+    });
+  } catch (error) {
+    showMessage('error', 'Failed to load profile');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const showMessage = (type, text, duration = 5000) => {
     setMessage({ type, text });
@@ -59,7 +68,7 @@ const ProfileSettings = () => {
   const handleSave = async () => {
     try {
       let response;
-      const user_id = 'current-user-id';
+      const user_id = user?.id;
 
       switch (editingField) {
         case 'name':
@@ -143,7 +152,7 @@ const ProfileSettings = () => {
                 <div>
                   <h2 className="text-xl font-heading font-semibold">{userProfile.name}</h2>
                   <p className="text-secondary/80">{userProfile.department} Department</p>
-                  <p className="text-secondary/60 text-sm mt-1">User ID: {userProfile.user_id}</p>
+                  <p className="text-secondary/60 text-sm mt-1">User ID: {user?.id}</p>
                 </div>
               </div>
             </div>
@@ -308,7 +317,7 @@ const ProfileSettings = () => {
                   <label className="block text-sm font-medium text-neutral-700 mb-1">
                     User ID
                   </label>
-                  <p className="text-primary font-mono text-sm">{userProfile.user_id}</p>
+                  <p className="text-primary font-mono text-sm">{user?.id}</p>
                 </div>
                 <div className="ml-4">
                   <span className="px-3 py-1 text-xs bg-neutral-100 text-neutral-500 rounded-md cursor-not-allowed">

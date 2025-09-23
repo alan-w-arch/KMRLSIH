@@ -10,6 +10,14 @@ import UploadUrlPage from "../pages/UploadUrlPage";
 import ProtectedRoute from "./ProtectedRoute";
 import { useAuth } from "../context/AuthContext";
 import ProfileSettings from "../pages/ProfileSettings";
+import Preferences from "../pages/Preferences";
+import History from "../pages/History";
+import Help from "../pages/Help";
+import AdminOptions from "../pages/AdminOptions";
+import UploadCompliance from "../pages/UploadCompliance";
+import NotificationPanel from "../pages/NotificationPanel";
+
+
 
 export default function AppRoutes() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -67,6 +75,54 @@ export default function AppRoutes() {
                       element={
                         <ProtectedRoute>
                           <ProfileSettings />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="preferences"
+                      element={
+                        <ProtectedRoute>
+                          <Preferences />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="history"
+                      element={
+                        <ProtectedRoute>
+                          <History />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="help"
+                      element={
+                        <ProtectedRoute>
+                          <Help />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="admin-options"
+                      element={
+                        <ProtectedRoute>
+                          <AdminOptions />
+                        </ProtectedRoute>
+                      }   
+                    />
+                    <Route
+                      path="compliance"
+                      element={
+                        <ProtectedRoute>
+                          <UploadCompliance />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="notifications"
+                      element={
+                        <ProtectedRoute>
+                          <NotificationPanel />
                         </ProtectedRoute>
                       }
                     />

@@ -10,7 +10,12 @@ export default function SearchDrawer({
   handleSearchSubmit,
   results,
   loading,
-}) {
+}) 
+
+
+
+
+{
   return (
     <AnimatePresence>
       {isSearchOpen && (

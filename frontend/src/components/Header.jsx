@@ -5,6 +5,7 @@ import { useLanguage } from "../context/LanguageContext";
 import SearchDrawer from "./SearchDrawer";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { searchDocuments } from '../api/services'; // Adjust import path as needed
 
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -27,27 +28,26 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     navigate("/login"); // redirect to login
   };
 
+  const handlebellclick=()=>{
+    setIsUserDropdownOpen(false);
+    navigate("/notifications");
+  }
+
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-
     setLoading(true);
-    setResults([]);
-
+  
     try {
-      // Example search (replace with your backend)
-      const res = await fetch(
-        `/api/search?q=${encodeURIComponent(searchQuery)}`
-      );
-      const data = await res.json();
-      setResults(data.results || []);
+      const data = await searchDocuments(query); // query is your search input state
+      setResults(data.results || []); // backend returns { results: [...] }
     } catch (err) {
-      console.error("Search error:", err);
+      console.error("Search error", err.response?.data || err.message);
       setResults([]);
     } finally {
       setLoading(false);
     }
   };
+
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
     setIsUserDropdownOpen(false); // Close dropdown after selection
@@ -160,6 +160,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
 
           {/* Notifications */}
           <button
+            onClick={handlebellclick}
             className="relative p-1.5 sm:p-2 hover:bg-hover rounded-lg transition-colors"
             aria-label="Notifications"
           >
