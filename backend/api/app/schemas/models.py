@@ -55,3 +55,6 @@ class changePhoneRequest(BaseModel):
 class changeDepartmentRequest(BaseModel):
     user_id: str
     dept_name: str
+
+class searchRequest(BaseModel):
+    query: str

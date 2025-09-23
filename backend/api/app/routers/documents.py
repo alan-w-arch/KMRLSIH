@@ -3,8 +3,9 @@ import aiohttp
 import cloudinary.uploader
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from api.app.config import supabase
-from api.app.schemas.models import URLRequest, SUMMARYRequest, ListDocsRequest, compliancesRequest
+from api.app.schemas.models import URLRequest, SUMMARYRequest, ListDocsRequest, compliancesRequest, searchRequest
 from nlpPipelne.ProcessPipeline import process_file
+from nlpPipelne.stages.EmbedIndex import search
 
 router = APIRouter()
 
@@ -137,3 +138,8 @@ async def compliances(request: compliancesRequest):
     if response.data:
         return {"data": response.data}
     return {"error": "No compliances found"}
+
+@router.get("/search")
+async def search_docs(request: searchRequest):
+    results = search(request.query)
+    return {"results": results}

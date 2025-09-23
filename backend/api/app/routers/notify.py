@@ -10,6 +10,7 @@ UPLOAD_DIR = "./temp"
 
 @router.post("/email")
 async def send_email(file: UploadFile = File(...), emailAdr: str = Form(...)):
+    print(f"Received file: {file.filename} from email: {emailAdr}")
     file_location = os.path.join(UPLOAD_DIR, file.filename)
     content = await file.read()
     with open(file_location, "wb") as f:
