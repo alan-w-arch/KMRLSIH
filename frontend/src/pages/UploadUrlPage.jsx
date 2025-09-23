@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
-import UploadDoc from "../components/UploadDoc";
-import { useNavigate } from "react-router-dom"; // your existing component
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { uploadUrl } from "../api/services";
 
 const departmentsList = [
   "Engineering",
@@ -11,16 +12,12 @@ const departmentsList = [
 ];
 
 function UploadUrlPage() {
-  const [priority, setPriority] = useState("medium");
+  const { user } = useAuth();
+  const [priority, setPriority] = useState("normal");
   const [selectedDepartments, setSelectedDepartments] = useState([]);
-  const [userId, setUserId] = useState("");
+  const [url, setUrl] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-
-  // Example: fetch userId from localStorage/session/context
-  useEffect(() => {
-    const storedUser = localStorage.getItem("userId") || "guest-user";
-    setUserId(storedUser);
-  }, []);
 
   const handleDepartmentChange = (dept) => {
     setSelectedDepartments((prev) =>
@@ -28,41 +25,97 @@ function UploadUrlPage() {
     );
   };
 
-  const handleSubmit = () => {
-    console.log("Submitting metadata:", {
-      userId,
-      priority,
-      departments: selectedDepartments,
-    });
+  const handleSubmit = async () => {
+    if (!url) {
+      alert("Please enter a URL!");
+      return;
+    }
+    if (!selectedDepartments.length) {
+      alert("Please select at least one department!");
+      return;
+    }
+    if (!user?.id) {
+      alert("User not authenticated!");
+      return;
+    }
 
-    navigate("/dashboard");
-    // you can send this metadata along with the file in UploadDoc
+    // Basic URL validation
+    try {
+      new URL(url);
+    } catch (error) {
+      alert("Please enter a valid URL!");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const uploadPromises = selectedDepartments.map(async (department) => {
+        const urlData = {
+          user_id: user.id,
+          url: url,
+          dept_name: department,
+          priority: priority
+        };
+        
+        return await uploadUrl(urlData);
+      });
+
+      // Wait for all uploads to complete
+      const results = await Promise.all(uploadPromises);
+      
+      const successfulUploads = results.filter(result => result.success !== false).length;
+      
+      if (successfulUploads > 0) {
+        alert(`URL uploaded successfully to ${successfulUploads} department(s)!`);
+        
+        // Reset form
+        setUrl("");
+        setSelectedDepartments([]);
+        setPriority("medium");
+        
+        navigate("/dashboard");
+      } else {
+        throw new Error("All uploads failed");
+      }
+      
+    } catch (error) {
+      console.error("Upload failed:", error);
+      
+      if (error.response?.data?.detail) {
+        alert(`Upload failed: ${error.response.data.detail}`);
+      } else {
+        alert("Failed to upload URL! Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="max-w-3xl min-h-[115vh] mx-auto p-6">
-      <h1 className="text-2xl font-bold text-primary mb-6">Upload Documents</h1>
+      <h1 className="text-2xl font-bold text-primary mb-6">Upload Document URL</h1>
 
-      {/* User ID Display */}
+      {/* User ID */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-neutral-700 mb-1">
           User ID
         </label>
         <input
           type="text"
-          value={userId}
+          value={user?.id || ""}
           disabled
           className="w-full rounded-lg border border-neutral-300 p-2 bg-neutral-100 text-neutral-600"
         />
       </div>
 
-      {/* Priority Selector */}
+      {/* Priority */}
       <div className="mb-4">
         <label className="block text-sm font-medium text-neutral-700 mb-2">
           Priority
         </label>
         <div className="flex gap-3">
-          {["low", "medium", "high"].map((p) => (
+          {["low", "normal", "high"].map((p) => (
             <button
               key={p}
               onClick={() => setPriority(p)}
@@ -78,7 +131,7 @@ function UploadUrlPage() {
         </div>
       </div>
 
-      {/* Department Selector */}
+      {/* Departments */}
       <div className="mb-6">
         <label className="block text-sm font-medium text-neutral-700 mb-2">
           Departments
@@ -94,6 +147,7 @@ function UploadUrlPage() {
                 checked={selectedDepartments.includes(dept)}
                 onChange={() => handleDepartmentChange(dept)}
                 className="form-checkbox text-primary"
+                disabled={isLoading}
               />
               <span>{dept}</span>
             </label>
@@ -101,16 +155,33 @@ function UploadUrlPage() {
         </div>
       </div>
 
-      {/* Upload Component */}
-      <UploadDoc />
+      {/* URL Input */}
+      <div className="mb-6">
+        <label className="block text-sm font-medium text-neutral-700 mb-2">
+          Document URL
+        </label>
+        <input
+          type="text"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="Enter the document URL here (e.g., https://example.com/document.pdf)"
+          className="w-full rounded-lg border border-neutral-300 p-2"
+          disabled={isLoading}
+        />
+      </div>
 
       {/* Submit Button */}
       <div className="mt-6 text-right">
         <button
-          onClick={handleSubmit}
-          className="px-6 py-2 rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors"
+          onClick={handleSubmit} // or handleSubmitSequential if you prefer
+          disabled={isLoading}
+          className={`px-6 py-2 rounded-lg transition-colors ${
+            isLoading 
+              ? "bg-gray-400 cursor-not-allowed" 
+              : "bg-primary text-white hover:bg-primary/90"
+          }`}
         >
-          Submit
+          {isLoading ? "Uploading..." : "Submit"}
         </button>
       </div>
     </div>
