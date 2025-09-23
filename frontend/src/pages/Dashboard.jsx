@@ -3,13 +3,18 @@ import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import StatsShow from "../components/StatsShow";
 import RecentDocuments from "../components/RecentDocuments";
-import Header from "../components/Header";
 import FloatingMenu from "../components/FloatingMenu";
 import SearchDrawer from "../components/SearchDrawer";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const [activeItem, setActiveItem] = useState("dashboard");
 
   // backend URL from env
   const BACKEND_URL =
@@ -23,81 +28,72 @@ const Dashboard = () => {
 
   const handleFileUpload = () => {
     console.log("Upload File Clicked");
-    // call backend: `${BACKEND_URL}/file`
   };
 
   const handleUrlUpload = () => {
     console.log("Upload URL Clicked");
-    // call backend: `${BACKEND_URL}/url`
-  };
-  // Simulate processing status polling
-  const pollProcessingStatus = (fileId) => {
-    // In a real implementation, you would poll your backend for status updates
-    setTimeout(() => {
-      setUploadedFiles((prev) =>
-        prev.map((f) =>
-          f.id === fileId
-            ? {
-                ...f,
-                status: "processed",
-                summary: "Document processed and indexed successfully.",
-              }
-            : f
-        )
-      );
-    }, 3000);
   };
 
-  // Function to get URL (example implementation)
-  const getUrl = async (url) => {
+  // Example search function
+  const handleSearchSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
     try {
-      const response = await axios.post(
-        API_ENDPOINTS.GET_URL,
-        {
-          url: url,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          timeout: 10000,
-        }
-      );
-
-      return response.data;
-    } catch (error) {
-      console.error("Get URL error:", error);
-      throw error;
+      // fake API call
+      setTimeout(() => {
+        setResults([
+          { title: "Sample Doc", description: "This is a mock search result." },
+        ]);
+        setLoading(false);
+      }, 1000);
+    } catch (err) {
+      console.error("Search error", err);
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-secondary">
-      <Header />
-
       <div className="flex">
         {/* Sidebar */}
         <Sidebar
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
-          setSearchOpen={setSearchOpen}
+          toggleSearch={() => {
+            setSearchOpen((prev) => !prev);
+            setActiveItem("search");
+          }}
+          activeItem={activeItem}
+          setActiveItem={setActiveItem}
         />
 
         {/* Main Content */}
-        <main className="flex-1 p-4 lg:p-6 max-w-full">
-          {/* Quick Stats */}
-
+        <main className="flex-1 pt-16 lg:pt-16 p-4  min-h-[150vh]  lg:p-6 max-w-full bg-gray-50  overflow-auto">
           <StatsShow />
-
-          {/* Recent Documents */}
           <RecentDocuments />
-
           <FloatingMenu
             onFileClick={handleFileUpload}
             onLinkClick={handleUrlUpload}
           />
         </main>
       </div>
+
+      <SearchDrawer
+        isSearchOpen={searchOpen}
+        toggleSearch={() => setSearchOpen((prev) => !prev)}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleSearchSubmit={handleSearchSubmit}
+        results={results}
+        loading={loading}
+      />
+      {searchOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-[40]"
+          onClick={() => setSearchOpen(false)}
+        />
+      )}
     </div>
   );
 };

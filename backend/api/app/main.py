@@ -56,6 +56,16 @@ class VIEWRequest(BaseModel):
 class SUMMARYRequest(BaseModel):
     doc_id: str
 
+class HISTORYRequest(BaseModel):
+    doc_id: str
+    user_id: str
+
+class TransactionRequest(BaseModel):
+        from_user: str
+        to_department: str
+        doc_id: str
+        timestamp: str  # or datetime, depending on your needs
+    
 
 @app.post("/login")
 async def login(request: LoginRequest):
@@ -263,4 +273,68 @@ async def summary(request: SUMMARYRequest):
         return {"summary": response.data[0]["content"]}
     else:
         return {"error": "No summary found for this doc_id"}
+
+@app.get("/history")
+async def history(request: HISTORYRequest):
+    response = supabase.table("transexions") \
+                       .select("*") \
+                       .eq("doc_id", request.doc_id) \
+                       .execute()
+
+    if response.data and len(response.data) > 0:
+        return {"history": response.data}
+    else:
+        return {"error": "No history found for this doc_id"}
+
+@app.post("/email")
+async def send_email(to_email: str = Form(...), 
+                     subject: str = Form(...), 
+                     body: str = Form(...)):
+    try:
+        # Simulate sending email (replace with actual email sending logic)
+        print(f"Sending email to {to_email} with subject '{subject}' and body '{body}'")
+        return {"message": "Email sent successfully"}
+    except Exception as e:
+        print("Error sending email:", str(e))
+        raise HTTPException(status_code=500, detail="Failed to send email")
+
+# # endpoint for phone number
+# @app.post("/phone")
+# async def send_sms(to_number: str = Form(...), 
+#                    message: str = Form(...)):
+#     try:
+#         # Simulate sending SMS (replace with actual SMS sending logic)
+#         print(f"Sending SMS to {to_number} with message '{message}'")
+#         return {"message": "SMS sent successfully"}
+#     except Exception as e:
+#         print("Error sending SMS:", str(e))
+#         raise HTTPException(status_code=500, detail="Failed to send SMS")
+
+@app.get("/transactions/{user_id}")
+async def get_transactions(user_id: str):
+    try:
+        response = supabase.table("transexions").select("*").eq("from_user", user_id).execute()
+        
+        if not response.data:
+            return {"message": "No transactions found for this user"}
+        
+        return {"transactions": response.data}
+    
+    except Exception as e:
+        print("Error fetching transactions:", str(e))
+        raise HTTPException(status_code=500, detail="Failed to fetch transactions")
+# for clean json
+# @app.get("/transactions/{user_id}")
+# async def get_transactions(user_id: str):
+#     try:
+#         response = supabase.table("transexions").select("*").eq("from_user", user_id).execute()
+        
+#         if not response.data:
+#             return {"message": "No transactions found for this user"}
+        
+#         return {"transactions": response.data}
+    
+#     except Exception as e:
+#         print("Error fetching transactions:", str(e))
+#         raise HTTPException(status_code=500, detail="Failed to fetch transactions")
 

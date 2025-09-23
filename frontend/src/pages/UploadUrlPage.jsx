@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import UploadDoc from "../components/UploadDoc"; 
-import { useNavigate } from "react-router-dom";// your existing component
+import UploadDoc from "../components/UploadDoc";
+import { useNavigate } from "react-router-dom"; // your existing component
 
 const departmentsList = [
   "Engineering",
@@ -24,9 +24,7 @@ function UploadUrlPage() {
 
   const handleDepartmentChange = (dept) => {
     setSelectedDepartments((prev) =>
-      prev.includes(dept)
-        ? prev.filter((d) => d !== dept)
-        : [...prev, dept]
+      prev.includes(dept) ? prev.filter((d) => d !== dept) : [...prev, dept]
     );
   };
 
@@ -42,10 +40,8 @@ function UploadUrlPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold text-primary mb-6">
-        Upload Documents
-      </h1>
+    <div className="max-w-3xl min-h-[115vh] mx-auto p-6">
+      <h1 className="text-2xl font-bold text-primary mb-6">Upload Documents</h1>
 
       {/* User ID Display */}
       <div className="mb-4">
