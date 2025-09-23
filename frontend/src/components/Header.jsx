@@ -10,6 +10,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { language, setLanguage, t } = useLanguage();
   const { user, logout } = useAuth();
@@ -52,6 +53,10 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     setIsUserDropdownOpen(false); // Close dropdown after selection
   };
 
+  const handlesettingsclick=()=>{
+    setIsUserDropdownOpen(false);
+    navigate("/profile-settings");
+  }
 
 
   // Document Icon Component matching your logo
@@ -228,7 +233,9 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                     </div>
                   </div>
 
-                  <button className="w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-hover transition-colors">
+                  <button
+                  onClick={handlesettingsclick}
+                  className="w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-hover transition-colors">
                     {t.profileSettings}
                   </button>
                   <button className="w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-hover transition-colors">

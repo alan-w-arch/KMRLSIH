@@ -9,6 +9,7 @@ import UploadDocPage from "../pages/UploadDocPage";
 import UploadUrlPage from "../pages/UploadUrlPage";
 import ProtectedRoute from "./ProtectedRoute";
 import { useAuth } from "../context/AuthContext";
+import ProfileSettings from "../pages/ProfileSettings";
 
 export default function AppRoutes() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -58,6 +59,14 @@ export default function AppRoutes() {
                       element={
                         <ProtectedRoute>
                           <UploadUrlPage />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="profile-settings"
+                      element={
+                        <ProtectedRoute>
+                          <ProfileSettings />
                         </ProtectedRoute>
                       }
                     />
