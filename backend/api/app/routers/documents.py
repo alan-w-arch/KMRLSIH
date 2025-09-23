@@ -3,12 +3,12 @@ import aiohttp
 import cloudinary.uploader
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from api.app.config import supabase
-from api.app.schemas.models import URLRequest, VIEWRequest
+from api.app.schemas.models import URLRequest, SUMMARYRequest, ListDocsRequest, compliancesRequest
 from nlpPipelne.ProcessPipeline import process_file
 
 router = APIRouter()
+
 UPLOAD_DIR = "./temp"
-os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 @router.post("/url")
 async def receive_url(request: URLRequest):
@@ -37,7 +37,7 @@ async def receive_url(request: URLRequest):
         "department": dept_id,
         "url": upload_result.get("secure_url"),
         "medium": "url",
-        "priority": "normal",
+        "priority": request.priority,
     }).execute()
     inserted_doc = doc_resp.data[0] if doc_resp.data else None
 
@@ -55,6 +55,7 @@ async def receive_url(request: URLRequest):
 
     os.remove(file_location)
     return {
+        "document": doc_resp.data,
         "filename": filename,
         "processed": output,
         "cloudinary_url": upload_result.get("secure_url")
@@ -64,7 +65,8 @@ async def receive_url(request: URLRequest):
 async def receive_file(
     file: UploadFile = File(...),
     user_id: str = Form(...),
-    dept_name: str = Form(...)
+    dept_name: str = Form(...),
+    priority: str = Form(...)
 ):
     file_location = os.path.join(UPLOAD_DIR, file.filename)
     content = await file.read()
@@ -86,7 +88,7 @@ async def receive_file(
             "department": dept_id,
             "url": upload_result.get("secure_url"),
             "medium": "direct file",
-            "priority": "normal",
+            "priority": priority,
         }).execute()
         inserted_doc = doc_resp.data[0] if doc_resp.data else None
 
@@ -106,7 +108,32 @@ async def receive_file(
         os.remove(file_location)
 
     return {
+        "document": doc_resp.data,
         "filename": file.filename,
         "processed": output,
         "cloudinary_url": upload_result.get("secure_url")
     }
+
+@router.get("/summary")
+async def summary(request: SUMMARYRequest):
+    response = supabase.table("summaries").select("content") \
+        .eq("doc_id", request.doc_id).execute()
+    if response.data:
+        return {"summary": response.data[0]["content"]}
+    return {"error": "No summary found"}
+
+@router.get("/listdocs")
+async def listdocs(request: ListDocsRequest):
+    dept_id = supabase.table("users").select("department").eq("id", request.user_id).execute()
+    response = supabase.table("documents").select("*") \
+        .eq("dept_id", dept_id).execute()
+    if response.data:
+        return {"data": response.data}
+    return {"error": "No docs found"}
+
+@router.get("/compliances")
+async def compliances(request: compliancesRequest):
+    response = supabase.table("compliances").select("*").eq("doc_id", request.doc_id).execute()
+    if response.data:
+        return {"data": response.data}
+    return {"error": "No compliances found"}

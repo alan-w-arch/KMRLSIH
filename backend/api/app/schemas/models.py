@@ -8,6 +8,7 @@ class URLRequest(BaseModel):
     user_id: str
     url: str
     dept_name: str
+    priority: str
 
 class VIEWRequest(BaseModel):
     user_id: str
@@ -17,7 +18,6 @@ class SUMMARYRequest(BaseModel):
     doc_id: str
 
 class HISTORYRequest(BaseModel):
-    doc_id: str
     user_id: str
 
 class TransactionRequest(BaseModel):
@@ -33,3 +33,25 @@ class RegisterRequest(BaseModel):
     department: str
     role: str
     phone: str
+
+class ListDocsRequest(BaseModel):
+    user_id: str
+
+class compliancesRequest(BaseModel):
+    doc_id: str
+
+class changeNameRequest(BaseModel):
+    user_id: str
+    name: str
+
+class changeEmailRequest(BaseModel):
+    user_id: str
+    email: str
+
+class changePhoneRequest(BaseModel):
+    user_id: str
+    phone: str
+
+class changeDepartmentRequest(BaseModel):
+    user_id: str
+    dept_name: str

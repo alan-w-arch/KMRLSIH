@@ -58,3 +58,8 @@ async def login(request: LoginRequest):
         # Log the error (replace with proper logging in prod)
         print("Login error:", str(e))
         raise HTTPException(status_code=500, detail="Login failed. Please try again.")
+
+@router.post("/department")
+async def create_department(name: str):
+    response = supabase.table("departments").insert({"name": name}).execute()
+    return {"success": True, "message": response.data[0]}
