@@ -16,8 +16,8 @@ import Help from "../pages/Help";
 import AdminOptions from "../pages/AdminOptions";
 import UploadCompliance from "../pages/UploadCompliance";
 import NotificationPanel from "../pages/NotificationPanel";
-
-
+import Analytics from "../pages/Analytics";
+import AboutPage from "../pages/AboutPage";
 
 export default function AppRoutes() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -123,6 +123,22 @@ export default function AppRoutes() {
                       element={
                         <ProtectedRoute>
                           <NotificationPanel />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="analytics"
+                      element={
+                        <ProtectedRoute>
+                          <Analytics />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="about"
+                      element={
+                        <ProtectedRoute>
+                          <AboutPage />
                         </ProtectedRoute>
                       }
                     />

@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { getUserHistory } from '../api/services';
+import { useAuth } from "../context/AuthContext";
+import { Link } from 'react-router-dom';
 
 const History = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     loadHistory();
@@ -12,7 +15,8 @@ const History = () => {
   const loadHistory = async () => {
     try {
       setLoading(true);
-      const historyData = await getUserHistory('current-user-id');
+      const historyData = await getUserHistory(user.id);
+      console.log('Fetched history data:', historyData);
       setHistory(historyData);
     } catch (error) {
       console.error('Failed to load history:', error);
@@ -42,10 +46,10 @@ const History = () => {
               <p className="text-neutral-600">Track your document views and interactions</p>
             </div>
             <Link 
-              to="/profile" 
+              to="/dashboard" 
               className="px-4 py-2 bg-accent text-white rounded-md hover:bg-accent/90 transition-colors"
             >
-              Back to Profile
+              Back to Dashboard
             </Link>
           </div>
         </div>
@@ -90,7 +94,7 @@ const History = () => {
               <h3 className="text-lg font-medium text-neutral-900 mb-2">No activity history yet</h3>
               <p className="text-neutral-500 mb-6">Your document views and interactions will appear here</p>
               <Link 
-                to="/documents" 
+                to="/dashboard" 
                 className="inline-flex items-center px-4 py-2 bg-accent text-white rounded-md hover:bg-accent/90 transition-colors"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
