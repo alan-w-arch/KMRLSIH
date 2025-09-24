@@ -6,6 +6,7 @@ import RecentDocuments from "../components/RecentDocuments";
 import FloatingMenu from "../components/FloatingMenu";
 import SearchDrawer from "../components/SearchDrawer";
 import { useAuth } from '../context/AuthContext';
+import HorizontalScroll from "../components/HorizontalScroll";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -62,7 +63,21 @@ const Dashboard = () => {
 
         {/* Main Content */}
         <main className="flex-1 pt-16 lg:pt-16 p-4 min-h-[150vh] lg:p-6 max-w-full bg-gray-50 overflow-auto">
-          <StatsShow />
+          <div >
+            <h2 className="text-xl font-heading mb-4">Urgent Cards</h2>
+            <HorizontalScroll>
+              {[...Array(10)].map((_, i) => (
+                <div
+                  key={i}
+                  className="min-w-[200px] h-40 bg-accent text-secondary flex items-center justify-center rounded-lg shadow-md"
+                >
+                  Card {i + 1}
+                </div>
+              ))}
+            </HorizontalScroll>
+          </div>
+
+
           
           {/* Add the Document Stacks Section here */}
           <DocumentStacksSection userId={uid} />

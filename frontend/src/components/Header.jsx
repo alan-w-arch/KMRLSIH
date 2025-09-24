@@ -58,6 +58,11 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     navigate("/profile-settings");
   }
 
+  const handlepreferencesclick=()=>{
+    setIsUserDropdownOpen(false);
+    navigate("/preferences");
+  }
+
 
   // Document Icon Component matching your logo
   const DocumentIcon = ({ size = 16, className = "" }) => (
@@ -239,7 +244,9 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                   className="w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-hover transition-colors">
                     {t.profileSettings}
                   </button>
-                  <button className="w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-hover transition-colors">
+                  <button
+                  onClick={handlepreferencesclick}
+                  className="w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-hover transition-colors">
                     {t.preferences}
                   </button>
                   <div className="border-t border-divider mt-1 pt-1">
