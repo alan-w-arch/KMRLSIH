@@ -62,13 +62,19 @@ function UploadDocPage() {
       "image/bmp",
       "image/webp",
     ];
-    
-    const allowedExtensions = /\.(pdf|doc|docx|xls|xlsx|jpg|jpeg|png|gif|bmp|webp)$/i;
+
+    const allowedExtensions =
+      /\.(pdf|doc|docx|xls|xlsx|jpg|jpeg|png|gif|bmp|webp)$/i;
     const maxSize = 10 * 1024 * 1024; // 10MB
 
     // Type validation
-    if (!allowedTypes.includes(file.type) && !allowedExtensions.test(file.name)) {
-      alert(`File type not supported: ${file.name}. Please upload PDF, Word, Excel, or image files.`);
+    if (
+      !allowedTypes.includes(file.type) &&
+      !allowedExtensions.test(file.name)
+    ) {
+      alert(
+        `File type not supported: ${file.name}. Please upload PDF, Word, Excel, or image files.`
+      );
       return;
     }
 
@@ -94,31 +100,34 @@ function UploadDocPage() {
 
       // Wait for all uploads to complete
       const results = await Promise.all(uploadPromises);
-      
+
       // Check if all uploads were successful
-      const successfulUploads = results.filter(result => result.success !== false).length;
-      
+      const successfulUploads = results.filter(
+        (result) => result.success !== false
+      ).length;
+
       if (successfulUploads > 0) {
-        alert(`File uploaded successfully to ${successfulUploads} department(s)!`);
-        
+        alert(
+          `File uploaded successfully to ${successfulUploads} department(s)!`
+        );
+
         // Reset form
         setSelectedFile(null);
         setSelectedDepartments([]);
         setPriority("normal");
-        
+
         // Clear file input
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
-        
+
         navigate("/dashboard");
       } else {
         throw new Error("All uploads failed");
       }
-      
     } catch (error) {
       console.error("Upload failed:", error);
-      
+
       if (error.response?.data?.detail) {
         alert(`Upload failed: ${error.response.data.detail}`);
       } else if (error.request) {
@@ -132,7 +141,7 @@ function UploadDocPage() {
   };
 
   return (
-    <div className="max-w-3xl min-h-[115vh] mx-auto p-6">
+    <div className="w-full min-h-[115vh] mx-auto p-6">
       <h1 className="text-2xl font-bold text-primary mb-6">Upload Documents</h1>
 
       {/* User ID */}
@@ -201,23 +210,40 @@ function UploadDocPage() {
       <div
         onClick={() => !isLoading && fileInputRef.current?.click()}
         className={`border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer mb-4 ${
-          isLoading 
-            ? "border-gray-300 bg-gray-100 cursor-not-allowed" 
+          isLoading
+            ? "border-gray-300 bg-gray-100 cursor-not-allowed"
             : "border-neutral-300 hover:border-accent hover:bg-accent/5"
         }`}
       >
         {!selectedFile ? (
           <>
-            <Upload className={`mx-auto mb-4 ${isLoading ? "text-gray-400" : "text-neutral-400"}`} size={48} />
-            <p className={`text-lg font-medium mb-2 ${isLoading ? "text-gray-600" : "text-neutral-700"}`}>
+            <Upload
+              className={`mx-auto mb-4 ${
+                isLoading ? "text-gray-400" : "text-neutral-400"
+              }`}
+              size={48}
+            />
+            <p
+              className={`text-lg font-medium mb-2 ${
+                isLoading ? "text-gray-600" : "text-neutral-700"
+              }`}
+            >
               Click or drag file to upload
             </p>
-            <p className={`text-sm ${isLoading ? "text-gray-500" : "text-neutral-500"}`}>
+            <p
+              className={`text-sm ${
+                isLoading ? "text-gray-500" : "text-neutral-500"
+              }`}
+            >
               Supported: pdf, doc, docx, xls, xlsx, images
             </p>
           </>
         ) : (
-          <p className={`text-lg font-medium ${isLoading ? "text-gray-600" : "text-neutral-700"}`}>
+          <p
+            className={`text-lg font-medium ${
+              isLoading ? "text-gray-600" : "text-neutral-700"
+            }`}
+          >
             {selectedFile.name}
           </p>
         )}
@@ -237,8 +263,8 @@ function UploadDocPage() {
           onClick={handleSubmit}
           disabled={isLoading}
           className={`px-6 py-2 rounded-lg transition-colors ${
-            isLoading 
-              ? "bg-gray-400 cursor-not-allowed" 
+            isLoading
+              ? "bg-gray-400 cursor-not-allowed"
               : "bg-primary text-white hover:bg-primary/90"
           }`}
         >

@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "../api/api";
 
 // Auth
 export const login = async (user_id, password) => {
@@ -22,14 +22,8 @@ export const getProfile = async (user_id) => {
   return response.data;
 };
 
-<<<<<<< HEAD
-// Uploads
-export const uploadUrl = async (user_id, url, dept_name) => {
-  const response = await api.post("/documents/url", { user_id, url, dept_name });
-=======
 export const changeName = async (user_id, name) => {
   const response = await api.post("/profile/cname", { user_id, name });
->>>>>>> frontend-hs-06
   return response.data;
 };
 
@@ -38,8 +32,6 @@ export const changeEmail = async (user_id, email) => {
   return response.data;
 };
 
-<<<<<<< HEAD
-=======
 export const changePhone = async (user_id, phone) => {
   const response = await api.post("/profile/cphone", { user_id, phone });
   return response.data;
@@ -67,7 +59,6 @@ export const uploadUrl = async (urlData) => {
 };
 
 export const uploadFile = async (formData) => {
->>>>>>> frontend-hs-06
   const response = await api.post("/documents/file", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });

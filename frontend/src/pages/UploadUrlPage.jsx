@@ -55,33 +55,36 @@ function UploadUrlPage() {
           user_id: user.id,
           url: url,
           dept_name: department,
-          priority: priority
+          priority: priority,
         };
-        
+
         return await uploadUrl(urlData);
       });
 
       // Wait for all uploads to complete
       const results = await Promise.all(uploadPromises);
-      
-      const successfulUploads = results.filter(result => result.success !== false).length;
-      
+
+      const successfulUploads = results.filter(
+        (result) => result.success !== false
+      ).length;
+
       if (successfulUploads > 0) {
-        alert(`URL uploaded successfully to ${successfulUploads} department(s)!`);
-        
+        alert(
+          `URL uploaded successfully to ${successfulUploads} department(s)!`
+        );
+
         // Reset form
         setUrl("");
         setSelectedDepartments([]);
         setPriority("medium");
-        
+
         navigate("/dashboard");
       } else {
         throw new Error("All uploads failed");
       }
-      
     } catch (error) {
       console.error("Upload failed:", error);
-      
+
       if (error.response?.data?.detail) {
         alert(`Upload failed: ${error.response.data.detail}`);
       } else {
@@ -93,8 +96,10 @@ function UploadUrlPage() {
   };
 
   return (
-    <div className="max-w-3xl min-h-[115vh] mx-auto p-6">
-      <h1 className="text-2xl font-bold text-primary mb-6">Upload Document URL</h1>
+    <div className="w-full min-h-[115vh] mx-auto p-6">
+      <h1 className="text-2xl font-bold text-primary mb-6">
+        Upload Document URL
+      </h1>
 
       {/* User ID */}
       <div className="mb-4">
@@ -176,8 +181,8 @@ function UploadUrlPage() {
           onClick={handleSubmit} // or handleSubmitSequential if you prefer
           disabled={isLoading}
           className={`px-6 py-2 rounded-lg transition-colors ${
-            isLoading 
-              ? "bg-gray-400 cursor-not-allowed" 
+            isLoading
+              ? "bg-gray-400 cursor-not-allowed"
               : "bg-primary text-white hover:bg-primary/90"
           }`}
         >
