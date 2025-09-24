@@ -37,10 +37,8 @@ const DocumentStacksSection = ({ userId }) => {
         const documents = response.documents || response.data || response;
         
         if (Array.isArray(documents)) {
+          console.log('Fetched documents:', documents);
           categorizeDocuments(documents);
-        } else {
-          console.error('Invalid documents data:', response);
-          setError('Invalid document data received');
         }
       } catch (err) {
         console.error('Error fetching documents:', err);
