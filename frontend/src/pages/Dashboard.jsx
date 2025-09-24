@@ -1,30 +1,24 @@
 import React, { useState } from "react";
-import axios from "axios";
 import Sidebar from "../components/Sidebar";
 import StatsShow from "../components/StatsShow";
+import DocumentStacksSection from "../components/DocumentStacksSection"; // Add this import
 import RecentDocuments from "../components/RecentDocuments";
 import FloatingMenu from "../components/FloatingMenu";
 import SearchDrawer from "../components/SearchDrawer";
+import { useAuth } from '../context/AuthContext';
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const uid = user?.id; // Assuming user object has an 'id' property
+
   const [activeItem, setActiveItem] = useState("dashboard");
 
-  // backend URL from env
-  const BACKEND_URL =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
-
-  // endpoints
-  const API_ENDPOINTS = {
-    UPLOAD_FILE: `${BACKEND_URL}/file`,
-    GET_URL: `${BACKEND_URL}/url`,
-  };
 
   const handleFileUpload = () => {
     console.log("Upload File Clicked");
@@ -34,24 +28,22 @@ const Dashboard = () => {
     console.log("Upload URL Clicked");
   };
 
+
   // Example search function
   const handleSearchSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      // fake API call
-      setTimeout(() => {
-        setResults([
-          { title: "Sample Doc", description: "This is a mock search result." },
-        ]);
-        setLoading(false);
-      }, 1000);
-    } catch (err) {
-      console.error("Search error", err);
-      setLoading(false);
-    }
-  };
+  try {
+    const data = await searchDocuments(query); // query is your search input state
+    setResults(data.results || []); // backend returns { results: [...] }
+  } catch (err) {
+    console.error("Search error", err.response?.data || err.message);
+    setResults([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen bg-secondary">
@@ -69,8 +61,12 @@ const Dashboard = () => {
         />
 
         {/* Main Content */}
-        <main className="flex-1 pt-16 lg:pt-16 p-4  min-h-[150vh]  lg:p-6 max-w-full bg-gray-50  overflow-auto">
+        <main className="flex-1 pt-16 lg:pt-16 p-4 min-h-[150vh] lg:p-6 max-w-full bg-gray-50 overflow-auto">
           <StatsShow />
+          
+          {/* Add the Document Stacks Section here */}
+          <DocumentStacksSection userId={uid} />
+          
           <RecentDocuments />
           <FloatingMenu
             onFileClick={handleFileUpload}
