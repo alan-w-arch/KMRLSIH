@@ -27,7 +27,7 @@ async def receive_url(request: URLRequest):
             with open(file_location, "wb") as f:
                 f.write(content)
 
-    output = process_file(file_location)
+    output = await process_file(file_location)
     upload_result = cloudinary.uploader.upload(content, resource_type="auto")
 
     dept_resp = supabase.table("departments").select("dept_id").eq("name", request.dept_name).execute()
@@ -77,7 +77,7 @@ async def receive_file(
         f.write(content)
 
     try:
-        output = process_file(file_location)
+        output = await process_file(file_location)
 
         dept_resp = supabase.table("departments").select("dept_id").eq("name", dept_name).execute()
         if not dept_resp.data:
