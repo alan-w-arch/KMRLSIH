@@ -45,7 +45,6 @@ export default function Login() {
     <div className="flex flex-col md:flex-row w-full h-screen overflow-hidden">
       {/* Left Side - Cover Image (skew column, cancel for image) */}
       <div className="relative w-full md:w-3/5 h-[60vh] md:h-full overflow-hidden ">
-        {/* Cancel skew for image */}
         <div className="absolute inset-0 bg-cover">
           <img
             ref={trainRef}
@@ -72,7 +71,6 @@ export default function Login() {
 
       {/* Right Side - Content (skew column, cancel for content) */}
       <div className="w-full md:w-2/5 h-full bg-[#111] flex items-center justify-center transform -skew-x-12">
-        {/* Cancel skew for content */}
         <div className="transform skew-x-12 text-center px-6 md:px-16 w-full">
           {!open ? (
             <>
