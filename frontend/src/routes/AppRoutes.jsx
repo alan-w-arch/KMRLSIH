@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 import Footer from "../components/Footer";
@@ -17,11 +17,22 @@ import AdminOptions from "../pages/AdminOptions";
 import UploadCompliance from "../pages/UploadCompliance";
 import NotificationPanel from "../pages/NotificationPanel";
 
-
-
 export default function AppRoutes() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
+  const [showFooter, setShowFooter] = useState(false);
+
+  // Scroll listener
+  useEffect(() => {
+    const handleScroll = () => {
+      const isBottom =
+        window.innerHeight + window.scrollY >= document.body.scrollHeight - 10;
+      setShowFooter(isBottom);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <Routes>
@@ -36,15 +47,21 @@ export default function AppRoutes() {
         path="/*"
         element={
           user ? (
-            <div className="flex h-screen overflow-hidden">
+            <div className="flex min-h-screen overflow-hidden">
               {/* Sidebar */}
-              <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+              <Sidebar
+                sidebarOpen={sidebarOpen}
+                setSidebarOpen={setSidebarOpen}
+              />
 
               {/* Main Content */}
-              <div className="flex-1 flex flex-col overflow-auto">
-                <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+              <div className="flex-1 flex flex-col">
+                <Header
+                  sidebarOpen={sidebarOpen}
+                  setSidebarOpen={setSidebarOpen}
+                />
 
-                <main className="flex-1 pt-16 lg:pt-16 ml-0 lg:ml-64 p-4 lg:p-6 min-h-[calc(100vh-8rem)]">
+                <main className="flex-1 pt-16 lg:pt-16 ml-0 lg:ml-64 p-4 lg:p-6">
                   <Routes>
                     <Route
                       path="dashboard"
@@ -108,7 +125,7 @@ export default function AppRoutes() {
                         <ProtectedRoute>
                           <AdminOptions />
                         </ProtectedRoute>
-                      }   
+                      }
                     />
                     <Route
                       path="compliance"
@@ -126,11 +143,15 @@ export default function AppRoutes() {
                         </ProtectedRoute>
                       }
                     />
-                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                    <Route
+                      path="*"
+                      element={<Navigate to="/dashboard" replace />}
+                    />
                   </Routes>
                 </main>
 
-                <Footer />
+                {/* Footer only shows at page bottom */}
+                {showFooter && <Footer />}
               </div>
             </div>
           ) : (

@@ -2,10 +2,9 @@ import React, { useState } from "react";
 import { Search, Bell, User, Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "../context/LanguageContext";
-import SearchDrawer from "./SearchDrawer";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { searchDocuments } from '../api/services'; // Adjust import path as needed
+import { searchDocuments } from "../api/services"; // Adjust import path as needed
 
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -18,25 +17,39 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
 
+  const [query, setQuery] = useState("");
+
+  const handleSearch = () => {
+    if (query.trim() === "") return;
+    console.log("Searching for:", query);
+    // Replace with API call, navigation, or filtering logic
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
     if (isSearchOpen) setSearchQuery("");
   };
 
   const handleSignOut = () => {
-    logout();          // clears context + localStorage
+    logout(); // clears context + localStorage
     navigate("/login"); // redirect to login
   };
 
-  const handlebellclick=()=>{
+  const handlebellclick = () => {
     setIsUserDropdownOpen(false);
     navigate("/notifications");
-  }
+  };
 
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
       const data = await searchDocuments(query); // query is your search input state
       setResults(data.results || []); // backend returns { results: [...] }
@@ -53,11 +66,10 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
     setIsUserDropdownOpen(false); // Close dropdown after selection
   };
 
-  const handlesettingsclick=()=>{
+  const handlesettingsclick = () => {
     setIsUserDropdownOpen(false);
     navigate("/profile-settings");
-  }
-
+  };
 
   // Document Icon Component matching your logo
   const DocumentIcon = ({ size = 16, className = "" }) => (
@@ -149,15 +161,38 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
 
         {/* Right side - Actions */}
         <div className="flex items-center gap-1 sm:gap-2 md:gap-3">
-          {/* Search Icon */}
-          <button
-            onClick={toggleSearch}
-            className="p-1.5 sm:p-2 hover:bg-hover rounded-lg transition-colors"
-            aria-label="Search"
-          >
-            <Search size={18} className="text-neutral-600 sm:w-5 sm:h-5" />
-          </button>
+          <div className="relative flex items-center">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="w-32 sm:w-48 md:w-64 lg:w-80 px-3 py-1.5 sm:py-2 pl-9 text-sm sm:text-base border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+            />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-4 h-4 sm:w-5 sm:h-5 absolute left-3 text-neutral-500"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-4.35-4.35M17 10.5A6.5 6.5 0 104 10.5a6.5 6.5 0 0013 0z"
+              />
+            </svg>
+          </div>
 
+          <button
+            type="button"
+            onClick={handleSearch}
+            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary text-white text-sm sm:text-base rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            Search
+          </button>
           {/* Notifications */}
           <button
             onClick={handlebellclick}
@@ -235,8 +270,9 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                   </div>
 
                   <button
-                  onClick={handlesettingsclick}
-                  className="w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-hover transition-colors">
+                    onClick={handlesettingsclick}
+                    className="w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-hover transition-colors"
+                  >
                     {t.profileSettings}
                   </button>
                   <button className="w-full text-left px-4 py-2 text-sm text-neutral-600 hover:bg-hover transition-colors">
@@ -244,8 +280,9 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
                   </button>
                   <div className="border-t border-divider mt-1 pt-1">
                     <button
-                    onClick={handleSignOut}
-                    className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors">
+                      onClick={handleSignOut}
+                      className="w-full text-left px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors"
+                    >
                       {t.signOut}
                     </button>
                   </div>
@@ -255,16 +292,6 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
           </div>
         </div>
       </header>
-
-      <SearchDrawer
-        isSearchOpen={isSearchOpen}
-        toggleSearch={toggleSearch}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        handleSearchSubmit={handleSearchSubmit}
-        results={results}
-        loading={loading}
-      />
 
       {/* Click outside to close dropdowns */}
       {(isUserDropdownOpen || isSearchOpen) && (
