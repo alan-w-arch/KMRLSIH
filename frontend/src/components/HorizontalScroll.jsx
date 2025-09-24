@@ -52,4 +52,5 @@ export default function HorizontalScroll({ children }) {
       </button>
     </div>
   );
+  
 }

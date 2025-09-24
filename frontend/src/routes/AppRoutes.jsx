@@ -18,6 +18,9 @@ import UploadCompliance from "../pages/UploadCompliance";
 import NotificationPanel from "../pages/NotificationPanel";
 import Analytics from "../pages/Analytics";
 import AboutPage from "../pages/AboutPage";
+import { View } from "lucide-react";
+import ViewSummary from "../pages/ViewSummary";
+
 
 export default function AppRoutes() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -142,6 +145,15 @@ export default function AppRoutes() {
                         </ProtectedRoute>
                       }
                     />
+                    <Route
+                      path="view-summary"
+                      element={
+                        <ProtectedRoute>
+                          <ViewSummary />
+                        </ProtectedRoute>
+                      }
+                    />
+
                     <Route path="*" element={<Navigate to="/dashboard" replace />} />
                   </Routes>
                 </main>

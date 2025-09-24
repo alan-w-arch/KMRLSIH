@@ -79,7 +79,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
           </NavLink>
 
           <NavLink
-            to="/viewsummary"
+            to="/view-summary"
             className={linkClasses}
             onClick={() => setSidebarOpen(false)}
           >
