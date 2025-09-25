@@ -48,7 +48,7 @@ export default function AdminOptions() {
 
       {/* Create Department */}
       <div className="w-full mx-auto md:mx-0 p-6 md:p-8 bg-white/40 backdrop-blur-md rounded-2xl shadow flex flex-col gap-4 border border-white/30">
-        <h2 className="text-2xl font-semibold text-green-500 mb-2">
+        <h2 className="text-2xl font-semibold text-black mb-2">
           Create Department
         </h2>
         <input
@@ -60,7 +60,7 @@ export default function AdminOptions() {
         />
         <button
           onClick={handleCreateDepartment}
-          className="self-start px-6 py-3 rounded-2xl bg-green-200 text-green-500 hover:bg-green-500 hover:text-green-200 transition shadow"
+          className="self-start px-6 py-3 rounded-2xl bg-green-100 text-green-500 hover:bg-green-500 hover:text-green-200 transition shadow"
         >
           Create Department
         </button>
@@ -68,9 +68,7 @@ export default function AdminOptions() {
 
       {/* Create User */}
       <div className="w-full mx-auto md:mx-0 p-6 md:p-8 bg-white/40 backdrop-blur-md rounded-2xl shadow flex flex-col gap-4 border border-white/30">
-        <h2 className="text-2xl font-semibold text-green-500 mb-2">
-          Create User
-        </h2>
+        <h2 className="text-2xl font-semibold text-black mb-2">Create User</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
             type="text"
@@ -126,7 +124,7 @@ export default function AdminOptions() {
 
         <button
           onClick={handleCreateUser}
-          className="self-start px-6 py-3 rounded-2xl bg-green-200 text-green-500 hover:bg-green-500 hover:text-green-200 transition shadow mt-2"
+          className="self-start px-6 py-3 rounded-2xl bg-green-100 text-green-500 hover:bg-green-500 hover:text-green-200 transition shadow mt-2"
         >
           Create User
         </button>
