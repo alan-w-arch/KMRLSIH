@@ -122,7 +122,7 @@ export const getRoot = async () => {
 
 
 export const getDepartmentName = async (dept_id) => {
-  const response = await api.get("/dept_name", {
+  const response = await api.get("/auth/dept_name", {
     params: { dept_id },
   });
   return response.data;

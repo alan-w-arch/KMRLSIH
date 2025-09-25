@@ -4,6 +4,7 @@ import {
   changeName,
   changeEmail,
   changePhone,
+  getDepartmentName
 } from "../api/services";
 import { useAuth } from "../context/AuthContext";
 
@@ -14,45 +15,38 @@ const ProfileSettings = () => {
   const [formData, setFormData] = useState({});
   const [message, setMessage] = useState({ type: "", text: "" });
   const { user } = useAuth();
+  const [deptName, setDeptName] = useState("");
 
-  // 🔹 Map department IDs to names
-  const departmentMap = {
-    1: "Engineering",
-    2: "Procurement",
-    3: "HR",
-    4: "Finance",
-    5: "Legal & Compliance",
-  };
 
   useEffect(() => {
     loadUserProfile();
+    deptNamefn();
   }, []);
+
+  const deptNamefn = async() => {
+    try {
+      setLoading(true);
+      const res = await getDepartmentName(user?.department);
+      setDeptName(res.message);
+    }catch (error) {
+      showMessage("error", "Failed to get department name");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
 
   const loadUserProfile = async () => {
     try {
       setLoading(true);
       const profile = await getProfile(user?.id);
       if (!profile) throw new Error("Profile not found");
-
+      const departmentName = profile.user[0]?.department ? await getDepartmentName(profile.user[0].department).then(res => res.message) : "Not Assigned";
       const userData = profile.user[0];
 
-      //
-      let departmentName;
-      if (
-        typeof userData.department === "object" &&
-        userData.department?.name
-      ) {
-        // Case: { id: 2, name: "Procurement" }
-        departmentName = userData.department.name;
-      } else if (!isNaN(userData.department)) {
-        // Case: 2 or "2"
-        departmentName = departmentMap[parseInt(userData.department, 10)];
-      } else {
-        // Case: already a string
-        departmentName = userData.department;
-      }
-
       setUserProfile({ ...userData, department: departmentName });
+
 
       setFormData({
         name: userData.name || "",
@@ -176,7 +170,7 @@ const ProfileSettings = () => {
                     {userProfile.name}
                   </h2>
                   <p className="text-secondary/80">
-                    {userProfile.department} Department
+                    Department: {deptName}
                   </p>
                   <p className="text-secondary/60 text-sm mt-1">
                     User ID: {user?.id}
