@@ -9,11 +9,73 @@ import {
   Clock,
   FileText,
   Layers,
+  X,
 } from "lucide-react";
 
 const getShortName = (name, maxLength = 20) => {
   if (!name) return "Untitled";
   return name.length > maxLength ? name.slice(0, maxLength - 3) + "..." : name;
+};
+
+// Summary Drawer Component
+const SummaryDrawer = ({ isOpen, onClose, docId }) => {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            onClick={onClose}
+          />
+          
+          {/* Drawer */}
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed right-0 top-0 h-full w-96 bg-white shadow-xl z-50 flex flex-col"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-800">Document Summary</h2>
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Content */}
+            <div className="flex-1 p-6 overflow-y-auto">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">Document ID</h3>
+                  <p className="text-gray-800">{docId}</p>
+                </div>
+                
+                {/* Add your summary content here */}
+                <div>
+                  <h3 className="text-sm font-medium text-gray-500 mb-2">Summary</h3>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-gray-600">
+                      Summary content will be loaded here for document ID: {docId}
+                    </p>
+                    {/* You can add your summary fetching logic here */}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
 };
 
 const DocumentStacksSection = ({ userId }) => {
@@ -39,6 +101,12 @@ const DocumentStacksSection = ({ userId }) => {
   const [processingStates, setProcessingStates] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Summary drawer state
+  const [summaryDrawer, setSummaryDrawer] = useState({
+    isOpen: false,
+    docId: null,
+  });
 
   // Fetch documents
   useEffect(() => {
@@ -142,6 +210,21 @@ const DocumentStacksSection = ({ userId }) => {
     }
   };
 
+  // Handle summary drawer toggle
+  const handleGetSummary = (document) => {
+    setSummaryDrawer({
+      isOpen: true,
+      docId: document.id,
+    });
+  };
+
+  const closeSummaryDrawer = () => {
+    setSummaryDrawer({
+      isOpen: false,
+      docId: null,
+    });
+  };
+
   // Stack Configs
   const stackConfigs = [
     {
@@ -203,42 +286,53 @@ const DocumentStacksSection = ({ userId }) => {
   }
 
   return (
-    <section className="mb-10 mt-10">
-      <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-800">Document Dashboard</h2>
-        <p className="text-gray-500 mt-2">
-          Manage and review your documents efficiently
-        </p>
-      </div>
+    <>
+      <section className="mb-10 mt-10">
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-gray-800">Document Dashboard</h2>
+          <p className="text-gray-500 mt-2">
+            Manage and review your documents efficiently
+          </p>
+        </div>
 
-      {/* First Row (3 stacks) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-        {firstRow.map((config) => (
-          <StackCard
-            key={config.key}
-            config={config}
-            documentStacks={documentStacks}
-            currentTopIndices={currentTopIndices}
-            handleMarkAsRead={handleMarkAsRead}
-            handleOpenDocument={handleOpenDocument}
-          />
-        ))}
-      </div>
+        {/* First Row (3 stacks) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+          {firstRow.map((config) => (
+            <StackCard
+              key={config.key}
+              config={config}
+              documentStacks={documentStacks}
+              currentTopIndices={currentTopIndices}
+              handleMarkAsRead={handleMarkAsRead}
+              handleOpenDocument={handleOpenDocument}
+              handleGetSummary={handleGetSummary}
+            />
+          ))}
+        </div>
 
-      {/* Second Row (2 large stacks) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {secondRow.map((config) => (
-          <StackCard
-            key={config.key}
-            config={config}
-            documentStacks={documentStacks}
-            currentTopIndices={currentTopIndices}
-            handleMarkAsRead={handleMarkAsRead}
-            handleOpenDocument={handleOpenDocument}
-          />
-        ))}
-      </div>
-    </section>
+        {/* Second Row (2 large stacks) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {secondRow.map((config) => (
+            <StackCard
+              key={config.key}
+              config={config}
+              documentStacks={documentStacks}
+              currentTopIndices={currentTopIndices}
+              handleMarkAsRead={handleMarkAsRead}
+              handleOpenDocument={handleOpenDocument}
+              handleGetSummary={handleGetSummary}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Summary Drawer */}
+      <SummaryDrawer
+        isOpen={summaryDrawer.isOpen}
+        onClose={closeSummaryDrawer}
+        docId={summaryDrawer.docId}
+      />
+    </>
   );
 };
 
@@ -249,6 +343,7 @@ const StackCard = ({
   currentTopIndices,
   handleMarkAsRead,
   handleOpenDocument,
+  handleGetSummary,
 }) => {
   const currentStack = documentStacks[config.key] || [];
   const currentTopIndex = currentTopIndices[config.key];
@@ -306,7 +401,7 @@ const StackCard = ({
 
                   {!document.marked_as_read && (
                     <button
-                      onClick={() => handleMarkAsRead(config.key, document)}
+                      onClick={() => handleGetSummary(document)}
                       className="px-2 py-1 border border-green-200 text-green-700 hover:bg-green-200 hover:text-green-800 rounded-lg text-xs transition"
                     >
                       Get Summary
