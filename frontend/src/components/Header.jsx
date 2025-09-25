@@ -95,7 +95,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
           <button
             type="button"
             onClick={handleSearch}
-            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-green-100 text-green-500 text-sm rounded-lg hover:bg-gray-200 hover:text-black transition-colors "
+            className="px-3 sm:px-4 py-1.5 sm:py-2 bg-green-100 text-green-500 text-sm rounded-lg hover:bg-green-500 hover:text-green-200 transition-colors "
           >
             Search
           </button>

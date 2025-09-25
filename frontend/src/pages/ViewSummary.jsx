@@ -1,9 +1,8 @@
-// src/pages/ViewSummary.jsx
 import React, { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { listDocuments, getSummary } from "../api/services";
+import { listDocuments } from "../api/services";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 
 export default function ViewSummary() {
   const { t, i18n } = useTranslation();
@@ -13,20 +12,20 @@ export default function ViewSummary() {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
-  // Fetch document list on mount
+  // Fetch documents on mount
   useEffect(() => {
     const fetchDocs = async () => {
       try {
-        const res = listDocuments(user.id);
+        const res = await listDocuments(user.id);
         setDocs(res.data || []);
       } catch (err) {
         console.error("Error fetching docs:", err);
       }
     };
     fetchDocs();
-  }, []);
+  }, [user.id]);
 
-  // Handle accordion toggle
+  // Fetch summary for a document
   const handleToggle = async (docId) => {
     if (openDoc === docId) {
       setOpenDoc(null);
@@ -34,14 +33,14 @@ export default function ViewSummary() {
     }
     setOpenDoc(docId);
 
-    // If summary not loaded yet, fetch it
     if (!summaries[docId]) {
       setLoading(true);
       try {
-        const res = await api.get(`/documents/${docId}/summary`, {
-          params: { lang: i18n.language },
-        });
-        setSummaries((prev) => ({ ...prev, [docId]: res.data.summary }));
+        const res = await fetch(
+          `/api/documents/${docId}/summary?lang=${i18n.language}`
+        );
+        const data = await res.json();
+        setSummaries((prev) => ({ ...prev, [docId]: data.summary }));
       } catch (err) {
         console.error("Error fetching summary:", err);
       } finally {
@@ -50,12 +49,8 @@ export default function ViewSummary() {
     }
   };
 
-  // Toggle language
-  const toggleLang = () => {
-    const newLang = i18n.language === "en" ? "ml" : "en";
-    i18n.changeLanguage(newLang);
-
-    // Re-fetch summary for open accordion in new language
+  // Re-fetch open summary when language changes
+  useEffect(() => {
     if (openDoc) {
       setSummaries((prev) => {
         const updated = { ...prev };
@@ -64,57 +59,93 @@ export default function ViewSummary() {
       });
       handleToggle(openDoc);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [i18n.language]);
+
+  // Toggle language
+  const toggleLang = () => {
+    const newLang = i18n.language === "en" ? "ml" : "en";
+    i18n.changeLanguage(newLang);
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-heading text-primary">
-          {t("documentSummaries")}
-        </h1>
-        <button
-          onClick={toggleLang}
-          className="px-4 py-2 bg-accent text-secondary rounded-md shadow hover:bg-primary transition"
-        >
-          {i18n.language === "en" ? "മലയാളം" : "English"}
-        </button>
-      </div>
+    <div className="min-h-screen bg-gray-50 rounded-2xl mt-10 p-4 sm:p-6 md:p-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold text-green-500 mb-2 sm:mb-0">
+            {t("documentSummaries")}
+          </h1>
 
-      <div className="space-y-4">
-        {docs.length === 0 ? (
-          <p className="text-neutral-600">{t("noDocuments")}</p>
-        ) : (
-          docs.map((doc) => (
-            <div
-              key={doc.id}
-              className="border border-neutral-300 rounded-lg overflow-hidden shadow-sm"
+          {/* Language Switcher */}
+          <div
+            onClick={toggleLang}
+            className="relative inline-flex items-center cursor-pointer w-20 h-10 bg-black rounded-full p-1"
+          >
+            <span
+              className={`absolute left-1 w-8 h-8 bg-green-500 rounded-full shadow transform transition-transform ${
+                i18n.language === "en" ? "translate-x-0" : "translate-x-10"
+              }`}
+            ></span>
+            <span
+              className={`absolute left-1 text-xs font-semibold text-white w-8 text-center ${
+                i18n.language === "en" ? "opacity-100" : "opacity-100"
+              }`}
             >
-              <button
-                onClick={() => handleToggle(doc.id)}
-                className="w-full flex justify-between items-center px-4 py-3 bg-neutral-100 hover:bg-neutral-200 transition"
-              >
-                <span className="font-medium text-primary">{doc.name}</span>
-                {openDoc === doc.id ? (
-                  <ChevronUp className="w-5 h-5 text-primary" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-primary" />
-                )}
-              </button>
+              En
+            </span>
+            <span
+              className={`absolute right-1 text-xs font-semibold text-white w-8 text-center ${
+                i18n.language === "ml" ? "opacity-100" : "opacity-100"
+              }`}
+            >
+              Ml
+            </span>
+          </div>
+        </div>
 
-              {openDoc === doc.id && (
-                <div className="p-4 bg-secondary text-primary">
-                  {loading && !summaries[doc.id] ? (
-                    <p>{t("loading")}...</p>
-                  ) : (
-                    <p className="whitespace-pre-line">
-                      {summaries[doc.id] || t("noSummary")}
-                    </p>
+        {/* Documents Accordion */}
+        <div className="space-y-4">
+          {docs.length === 0 ? (
+            <p className="text-green-300 text-center">{t("noDocuments")}</p>
+          ) : (
+            docs.map((doc) => {
+              const isOpen = openDoc === doc.id;
+              return (
+                <div
+                  key={doc.id}
+                  className="rounded-xl shadow-md backdrop-blur-sm bg-white/50 border border-white/20 overflow-hidden transition-all duration-300"
+                >
+                  <button
+                    onClick={() => handleToggle(doc.id)}
+                    className={`w-full flex justify-between items-center px-4 sm:px-5 py-3 sm:py-4 hover:bg-green-50 transition`}
+                  >
+                    <span className="font-medium text-green-500 text-sm sm:text-base">
+                      {doc.name}
+                    </span>
+                    {isOpen ? (
+                      <ChevronUp className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-green-500" />
+                    )}
+                  </button>
+
+                  {isOpen && (
+                    <div className="p-3 sm:p-4 bg-white/30 text-green-500 border-t border-white/20 text-sm sm:text-base">
+                      {loading && !summaries[doc.id] ? (
+                        <p className="text-green-400">{t("loading")}...</p>
+                      ) : (
+                        <p className="whitespace-pre-line">
+                          {summaries[doc.id] || t("noSummary")}
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
-          ))
-        )}
+              );
+            })
+          )}
+        </div>
       </div>
     </div>
   );
