@@ -3,12 +3,10 @@ import Sidebar from "../components/Sidebar";
 import DocumentStacksSection from "../components/DocumentStacksSection";
 import RecentDocuments from "../components/RecentDocuments";
 import FloatingMenu from "../components/FloatingMenu";
-import SearchDrawer from "../components/SearchDrawer";
 import { useAuth } from "../context/AuthContext";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState([]);
@@ -23,21 +21,6 @@ const Dashboard = () => {
 
   const handleUrlUpload = () => {
     console.log("Upload URL Clicked");
-  };
-
-  const handleSearchSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const data = await searchDocuments(searchQuery);
-      setResults(data.results || []);
-    } catch (err) {
-      console.error("Search error", err.response?.data || err.message);
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
   };
 
   return (
@@ -81,21 +64,7 @@ const Dashboard = () => {
       </div>
 
       {/* Search Drawer */}
-      <SearchDrawer
-        isSearchOpen={searchOpen}
-        toggleSearch={() => setSearchOpen((prev) => !prev)}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        handleSearchSubmit={handleSearchSubmit}
-        results={results}
-        loading={loading}
-      />
-      {searchOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-[40]"
-          onClick={() => setSearchOpen(false)}
-        />
-      )}
+      
     </div>
   );
 };

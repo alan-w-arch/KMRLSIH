@@ -43,7 +43,7 @@ function Sidebar() {
       {/* Logo */}
       <div className="flex items-center justify-center border-b border-gray-200">
         <span className="font-bold text-sm w-50 m-0 h-full">
-          <img src="./logo2-2.svg" alt="" srcset="" />
+          <img src="./logo2-2.svg" alt="logo" />
         </span>
       </div>
 
