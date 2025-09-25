@@ -73,12 +73,11 @@ const Dashboard = () => {
           <div className="mt-10">
             <RecentDocuments />
           </div>
-
-          <FloatingMenu
-            onFileClick={handleFileUpload}
-            onLinkClick={handleUrlUpload}
-          />
         </main>
+        <FloatingMenu
+          onFileClick={handleFileUpload}
+          onLinkClick={handleUrlUpload}
+        />
       </div>
 
       {/* Search Drawer */}

@@ -77,7 +77,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
           </button>
 
           {/* Search */}
-          <div className="relative flex items-center">
+          <div className="relative  flex items-center">
             <input
               type="text"
               placeholder="Search..."
