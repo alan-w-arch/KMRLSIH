@@ -28,43 +28,50 @@ const SummaryDrawer = ({ isOpen, onClose, docId }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            className="fixed inset-0 bg-gray-50/30 backdrop-blur-3xl z-40"
             onClick={onClose}
           />
-          
+
           {/* Drawer */}
           <motion.div
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 h-full w-96 bg-white shadow-xl z-50 flex flex-col"
+            className="fixed right-0 top-0 h-full w-96 bg-gray-50 z-50 flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-800">Document Summary</h2>
+              <h2 className="text-xl font-semibold text-green-500">
+                Document Summary
+              </h2>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                className="p-2 hover:bg-green-500 hover:text-green-200 rounded-full transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
-            
+
             {/* Content */}
             <div className="flex-1 p-6 overflow-y-auto">
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">Document ID</h3>
+                  <div className="text-sm font-medium  text-green-500 mb-2">
+                    <h3 className="border-b-1 mb-5">Document ID</h3>
+                  </div>
                   <p className="text-gray-800">{docId}</p>
                 </div>
-                
+
                 {/* Add your summary content here */}
                 <div>
-                  <h3 className="text-sm font-medium text-gray-500 mb-2">Summary</h3>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-gray-600">
-                      Summary content will be loaded here for document ID: {docId}
+                  <div className="text-sm font-medium  text-green-500 mb-2">
+                    <h3 className=" border-b-1 mb-5">Summary</h3>
+                  </div>
+                  <div className="border border-green-200 p-4 text-green-500 rounded-lg">
+                    <p className="text-green-500">
+                      Summary content will be loaded here for document ID:{" "}
+                      {docId}
                     </p>
                     {/* You can add your summary fetching logic here */}
                   </div>
@@ -101,7 +108,7 @@ const DocumentStacksSection = ({ userId }) => {
   const [processingStates, setProcessingStates] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
+
   // Summary drawer state
   const [summaryDrawer, setSummaryDrawer] = useState({
     isOpen: false,
@@ -235,7 +242,7 @@ const DocumentStacksSection = ({ userId }) => {
     },
     {
       key: "stack4",
-      title: "Normal Priority",
+      title: "Medium Priority",
       icon: Clock,
       gradient: "from-yellow-400 to-yellow-600",
     },
@@ -289,7 +296,9 @@ const DocumentStacksSection = ({ userId }) => {
     <>
       <section className="mb-10 mt-10">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-800">Document Dashboard</h2>
+          <h2 className="text-3xl font-bold text-gray-800">
+            Document Dashboard
+          </h2>
           <p className="text-gray-500 mt-2">
             Manage and review your documents efficiently
           </p>
