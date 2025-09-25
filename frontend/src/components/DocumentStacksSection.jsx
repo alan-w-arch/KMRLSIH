@@ -68,7 +68,7 @@ const SummaryDrawer = ({ isOpen, onClose, docId }) => {
                   <div className="text-sm font-medium  text-green-500 mb-2">
                     <h3 className=" border-b-1 mb-5">Summary</h3>
                   </div>
-                  <div className="border border-green-200 p-4 text-green-500 rounded-lg">
+                  <div className="border-green-200 p-4 text-green-500 rounded-lg">
                     <p className="text-green-500">
                       Summary content will be loaded here for document ID:{" "}
                       {docId}
