@@ -5,7 +5,7 @@ import DocumentStacksSection from "../components/DocumentStacksSection"; // Add 
 import RecentDocuments from "../components/RecentDocuments";
 import FloatingMenu from "../components/FloatingMenu";
 import SearchDrawer from "../components/SearchDrawer";
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
 import HorizontalScroll from "../components/HorizontalScroll";
 
 const Dashboard = () => {
@@ -20,7 +20,6 @@ const Dashboard = () => {
 
   const [activeItem, setActiveItem] = useState("dashboard");
 
-
   const handleFileUpload = () => {
     console.log("Upload File Clicked");
   };
@@ -29,25 +28,24 @@ const Dashboard = () => {
     console.log("Upload URL Clicked");
   };
 
-
   // Example search function
   const handleSearchSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const data = await searchDocuments(query); // query is your search input state
-    setResults(data.results || []); // backend returns { results: [...] }
-  } catch (err) {
-    console.error("Search error", err.response?.data || err.message);
-    setResults([]);
-  } finally {
-    setLoading(false);
-  }
-};
+    try {
+      const data = await searchDocuments(query); // query is your search input state
+      setResults(data.results || []); // backend returns { results: [...] }
+    } catch (err) {
+      console.error("Search error", err.response?.data || err.message);
+      setResults([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-secondary">
+    <div className="min-h-screen m-0 bg-slate-600/5">
       <div className="flex">
         {/* Sidebar */}
         <Sidebar
@@ -62,26 +60,14 @@ const Dashboard = () => {
         />
 
         {/* Main Content */}
-        <main className="flex-1 pt-16 lg:pt-16 p-4 min-h-[150vh] lg:p-6 max-w-full bg-gray-50 overflow-auto">
-          <div >
-            <h2 className="text-xl font-heading mb-4">Urgent Cards</h2>
-            <HorizontalScroll>
-              {[...Array(10)].map((_, i) => (
-                <div
-                  key={i}
-                  className="min-w-[200px] h-40 bg-accent text-secondary flex items-center justify-center rounded-lg shadow-md"
-                >
-                  Card {i + 1}
-                </div>
-              ))}
-            </HorizontalScroll>
+        <main className="flex-1 pt-16 lg:pt-16 p-4 min-h-[150vh] lg:p-6 w-full m-0 overflow-auto">
+          <div>
+            <DocumentStacksSection userId={uid} />
           </div>
 
+          {/* Add the Document Stacks Section here
+          <DocumentStacksSection userId={uid} /> */}
 
-          
-          {/* Add the Document Stacks Section here */}
-          <DocumentStacksSection userId={uid} />
-          
           <RecentDocuments />
           <FloatingMenu
             onFileClick={handleFileUpload}

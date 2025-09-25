@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import {listDocuments, getSummary} from "../api/services";
+import { listDocuments, getSummary } from "../api/services";
 import { useAuth } from "../context/AuthContext";
 
 export default function ViewSummary() {
@@ -13,12 +13,11 @@ export default function ViewSummary() {
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
-
   // Fetch document list on mount
   useEffect(() => {
     const fetchDocs = async () => {
       try {
-        const res =  listDocuments(user.id)
+        const res = listDocuments(user.id);
         setDocs(res.data || []);
       } catch (err) {
         console.error("Error fetching docs:", err);
@@ -70,7 +69,9 @@ export default function ViewSummary() {
   return (
     <div className="max-w-3xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-heading text-primary">{t("documentSummaries")}</h1>
+        <h1 className="text-3xl font-heading text-primary">
+          {t("documentSummaries")}
+        </h1>
         <button
           onClick={toggleLang}
           className="px-4 py-2 bg-accent text-secondary rounded-md shadow hover:bg-primary transition"

@@ -3,7 +3,7 @@ import { listDocuments } from "../api/services";
 import { useAuth } from "../context/AuthContext";
 
 export default function UploadCompliance() {
-  const { user } = useAuth(); // make sure user is loaded
+  const { user } = useAuth();
   const [documents, setDocuments] = useState([]);
   const [loadingDocs, setLoadingDocs] = useState(true);
 
@@ -16,11 +16,12 @@ export default function UploadCompliance() {
   });
 
   useEffect(() => {
-    if (!user?.user_id) return; // wait for user_id
+    if (!user?.user_id) return;
+
     const fetchDocuments = async () => {
       try {
         const docs = await listDocuments(user.user_id);
-        console.log("Fetched documents:", docs); // DEBUG
+        console.log("Fetched documents:", docs);
         setDocuments(docs);
       } catch (err) {
         console.error("Failed to fetch documents:", err);
@@ -28,6 +29,7 @@ export default function UploadCompliance() {
         setLoadingDocs(false);
       }
     };
+
     fetchDocuments();
   }, [user?.user_id]);
 
@@ -54,6 +56,11 @@ export default function UploadCompliance() {
           <option value="">
             {loadingDocs ? "Loading documents..." : "Select Document"}
           </option>
+
+          {/* Demo File Option */}
+          <option value="demo-file">Demo File</option>
+
+          {/* Fetched Documents */}
           {documents.length > 0
             ? documents.map((doc) => (
                 <option key={doc.doc_id || doc.id} value={doc.doc_id || doc.id}>

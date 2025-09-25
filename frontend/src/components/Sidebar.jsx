@@ -1,5 +1,16 @@
 import { useLanguage } from "../context/LanguageContext";
-import { FileText, Link2, HandHelping, FileClock, FileUp, ChartLine, LayoutDashboard, FolderCode, View, Crown } from "lucide-react";
+import {
+  FileText,
+  Link2,
+  HandHelping,
+  FileClock,
+  FileUp,
+  ChartLine,
+  LayoutDashboard,
+  FolderCode,
+  View,
+  Crown,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 function Sidebar({ sidebarOpen, setSidebarOpen }) {
@@ -8,7 +19,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
   const linkClasses = ({ isActive }) =>
     `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
       isActive
-        ? "bg-accent/10 text-accent font-medium"
+        ? "bg-green-500/40 text-neutral font-medium"
         : "text-neutral-600 hover:bg-neutral-100"
     }`;
 
@@ -86,8 +97,6 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
             <View size={20} />
             {t.viewsummary}
           </NavLink>
-
-
 
           {/* Analytics */}
           <NavLink
