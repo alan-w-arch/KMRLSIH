@@ -259,7 +259,7 @@ const StackCard = ({
       </div>
 
       {/* Body */}
-      <div className="relative flex-1 p-3 mb-10">
+      <div className="relative flex-1 p-3 mb-15">
         {currentStack.length === 0 ? (
           <div className="h-full flex items-center justify-center mb-10 text-neutral-500 text-sm">
             No Docs
