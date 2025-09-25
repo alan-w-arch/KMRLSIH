@@ -21,7 +21,6 @@ import AboutPage from "../pages/AboutPage";
 import { View } from "lucide-react";
 import ViewSummary from "../pages/ViewSummary";
 
-
 export default function AppRoutes() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user } = useAuth();
@@ -173,7 +172,10 @@ export default function AppRoutes() {
                       }
                     />
 
-                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                    <Route
+                      path="*"
+                      element={<Navigate to="/dashboard" replace />}
+                    />
                   </Routes>
                 </main>
 

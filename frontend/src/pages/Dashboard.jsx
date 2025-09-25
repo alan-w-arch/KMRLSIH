@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
-import StatsShow from "../components/StatsShow";
-import DocumentStacksSection from "../components/DocumentStacksSection"; // Add this import
+import DocumentStacksSection from "../components/DocumentStacksSection";
 import RecentDocuments from "../components/RecentDocuments";
 import FloatingMenu from "../components/FloatingMenu";
 import SearchDrawer from "../components/SearchDrawer";
 import { useAuth } from "../context/AuthContext";
-import HorizontalScroll from "../components/HorizontalScroll";
 
 const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -16,8 +14,7 @@ const Dashboard = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const uid = user?.id; // Assuming user object has an 'id' property
-
+  const uid = user?.id;
   const [activeItem, setActiveItem] = useState("dashboard");
 
   const handleFileUpload = () => {
@@ -28,14 +25,13 @@ const Dashboard = () => {
     console.log("Upload URL Clicked");
   };
 
-  // Example search function
   const handleSearchSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const data = await searchDocuments(query); // query is your search input state
-      setResults(data.results || []); // backend returns { results: [...] }
+      const data = await searchDocuments(searchQuery);
+      setResults(data.results || []);
     } catch (err) {
       console.error("Search error", err.response?.data || err.message);
       setResults([]);
@@ -45,30 +41,39 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen m-0 ">
-      <div className="flex">
-        {/* Sidebar */}
-        <Sidebar
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          toggleSearch={() => {
-            setSearchOpen((prev) => !prev);
-            setActiveItem("search");
-          }}
-          activeItem={activeItem}
-          setActiveItem={setActiveItem}
-        />
+    <div className="min-h-screen bg-gray-50 rounded-2xl">
+      {/* Sidebar */}
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        toggleSearch={() => {
+          setSearchOpen((prev) => !prev);
+          setActiveItem("search");
+        }}
+        activeItem={activeItem}
+        setActiveItem={setActiveItem}
+      />
 
-        {/* Main Content */}
-        <main className="flex-1 pt-16 lg:pt-16 p-4 min-h-[150vh] lg:p-6 w-full m-0 overflow-auto">
-          <div>
-            <DocumentStacksSection userId={uid} />
+      {/* Main Content */}
+      <div
+        className={`transition-all duration-300 ${
+          sidebarOpen ? "lg:ml-64" : "ml-0"
+        }`}
+      >
+        <main
+          className="
+            min-h-[100vh] overflow-auto
+          backdrop-blur-xl
+             rounded-xl
+            mt-6 mx-3 sm:mx-4 lg:mx-8 p-4 sm:p-6 lg:p-8
+          "
+        >
+          <DocumentStacksSection userId={uid} />
+
+          <div className="mt-10">
+            <RecentDocuments />
           </div>
 
-          {/* Add the Document Stacks Section here
-          <DocumentStacksSection userId={uid} /> */}
-
-          <RecentDocuments />
           <FloatingMenu
             onFileClick={handleFileUpload}
             onLinkClick={handleUrlUpload}
@@ -76,6 +81,7 @@ const Dashboard = () => {
         </main>
       </div>
 
+      {/* Search Drawer */}
       <SearchDrawer
         isSearchOpen={searchOpen}
         toggleSearch={() => setSearchOpen((prev) => !prev)}

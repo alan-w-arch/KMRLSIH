@@ -189,11 +189,13 @@ const DocumentStacksSection = ({ userId }) => {
   }
 
   return (
-    <section className="mb-10">
+    <section className="mb-10 mt-10">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-primary">Document Dashboard</h2>
-        <p className="text-neutral-600 mt-5">
-          Organized stacks for streamlined review
+        <h2 className="text-3xl font-bold text-gray-800">
+          📂 Document Dashboard
+        </h2>
+        <p className="text-gray-500 mt-2">
+          Manage and review your documents efficiently
         </p>
       </div>
 
@@ -241,28 +243,28 @@ const StackCard = ({
   const Icon = config.icon;
 
   return (
-    <div className="rounded-2xl shadow-lg border border-neutral-200  bg-white overflow-hidden flex flex-col">
+    <div className="rounded-2xl shadow-md hover:shadow-xl border border-gray-200 bg-white overflow-hidden flex flex-col transition-shadow duration-300">
       {/* Header */}
       <div
-        className={`px-4 py-3 bg-gradient-to-r ${config.gradient} text-white`}
+        className={`px-5 py-4 bg-gradient-to-r ${config.gradient} text-white`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Icon className="w-5 h-5" />
-            <h3 className="font-semibold text-sm">{config.title}</h3>
+            <h3 className="font-semibold text-base">{config.title}</h3>
           </div>
           <span className="bg-white/20 rounded-full px-2 py-0.5 text-xs">
             {Math.max(0, currentStack.length - currentTopIndex)}
           </span>
         </div>
-        <p className="text-xs opacity-90 mt-1">{config.description}</p>
+        <p className="text-xs opacity-80 mt-1">{config.description}</p>
       </div>
 
       {/* Body */}
-      <div className="relative flex-1 p-3 mb-15">
+      <div className="relative flex-1 p-4 min-h-[16rem]">
         {currentStack.length === 0 ? (
-          <div className="h-full flex items-center justify-center mb-10 text-neutral-500 text-sm">
-            No Docs
+          <div className="h-full flex items-center justify-center text-gray-400 text-sm">
+            No documents available
           </div>
         ) : (
           <AnimatePresence>
