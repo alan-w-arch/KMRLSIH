@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { listDocuments, markViewed } from "../api/services";
-import VerticalCard from "./VerticalCard";
-import { useAuth } from "../context/AuthContext";
 import {
   AlertCircle,
   CheckCircle,
@@ -86,7 +84,6 @@ const SummaryDrawer = ({ isOpen, onClose, docId }) => {
 };
 
 const DocumentStacksSection = ({ userId }) => {
-  const { user } = useAuth();
   const [documentStacks, setDocumentStacks] = useState({
     stack1: [],
     stack2: [],
@@ -122,7 +119,8 @@ const DocumentStacksSection = ({ userId }) => {
       try {
         setLoading(true);
         const response = await listDocuments(userId);
-        const documents = response.documents || response.data || response;
+        console.log("Fetched documents:", response);
+        const documents = response.data ;
         if (Array.isArray(documents)) categorizeDocuments(documents);
       } catch (err) {
         console.error("Error fetching documents:", err);
@@ -171,10 +169,6 @@ const DocumentStacksSection = ({ userId }) => {
         case "low":
           stacks.stack5.push(normalizedDoc);
           break;
-        case "urgent":
-        case "critical":
-          stacks.stack6.push(normalizedDoc);
-          break;
         default:
           stacks.stack4.push(normalizedDoc); // fallback to normal
       }
@@ -212,8 +206,9 @@ const DocumentStacksSection = ({ userId }) => {
   };
 
   const handleOpenDocument = (document) => {
-    if (document.cloudinaryUrl && document.cloudinaryUrl !== "#") {
-      window.open(document.cloudinaryUrl, "_blank");
+    console.log("Opening document URL:", document.url);
+    if (document.url && document.url !== "#") {
+      window.open(document.url, "_blank");
     }
   };
 
