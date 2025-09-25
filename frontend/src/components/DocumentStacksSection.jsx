@@ -11,6 +11,11 @@ import {
   Layers,
 } from "lucide-react";
 
+const getShortName = (name, maxLength = 20) => {
+  if (!name) return "Untitled";
+  return name.length > maxLength ? name.slice(0, maxLength - 3) + "..." : name;
+};
+
 const DocumentStacksSection = ({ userId }) => {
   const { user } = useAuth();
   const [documentStacks, setDocumentStacks] = useState({
@@ -56,12 +61,12 @@ const DocumentStacksSection = ({ userId }) => {
 
   const categorizeDocuments = (documents) => {
     const stacks = {
-      stack1: [],
-      stack2: [],
-      stack3: [],
-      stack4: [],
-      stack5: [],
-      stack6: [],
+      stack1: [], // all
+      stack2: [], // Viewed - Unread
+      stack3: [], // High Priority
+      stack4: [], // Normal Priority
+      stack5: [], // Low/Medium Priority
+      stack6: [], // Urgent/Critical
     };
 
     documents.forEach((doc) => {
@@ -74,17 +79,30 @@ const DocumentStacksSection = ({ userId }) => {
         marked_as_read: doc.marked_as_read || false,
       };
 
-      stacks.stack1.push(normalizedDoc); // all
-      if (normalizedDoc.viewed && !normalizedDoc.marked_as_read)
+      stacks.stack1.push(normalizedDoc); // All documents
+
+      if (normalizedDoc.viewed && !normalizedDoc.marked_as_read) {
         stacks.stack2.push(normalizedDoc);
-      else if (normalizedDoc.priority === "high")
-        stacks.stack3.push(normalizedDoc);
-      else if (normalizedDoc.priority === "normal")
-        stacks.stack4.push(normalizedDoc);
-      else if (normalizedDoc.priority === "medium")
-        stacks.stack5.push(normalizedDoc);
-      else if (["urgent", "critical"].includes(normalizedDoc.priority))
-        stacks.stack6.push(normalizedDoc);
+      }
+
+      // Correctly map priority to stacks
+      switch (normalizedDoc.priority.toLowerCase()) {
+        case "high":
+          stacks.stack3.push(normalizedDoc);
+          break;
+        case "normal":
+          stacks.stack4.push(normalizedDoc);
+          break;
+        case "low":
+          stacks.stack5.push(normalizedDoc);
+          break;
+        case "urgent":
+        case "critical":
+          stacks.stack6.push(normalizedDoc);
+          break;
+        default:
+          stacks.stack4.push(normalizedDoc); // fallback to normal
+      }
     });
 
     setDocumentStacks(stacks);
@@ -127,37 +145,33 @@ const DocumentStacksSection = ({ userId }) => {
   // Stack Configs
   const stackConfigs = [
     {
-      key: "stack6",
+      key: "stack3",
       title: "High Priority",
-      description: "Critical docs needing action",
       icon: AlertCircle,
       gradient: "from-red-500 to-red-700",
     },
     {
-      key: "stack5",
+      key: "stack4",
       title: "Normal Priority",
-      description: "Moderate importance",
       icon: Clock,
       gradient: "from-yellow-400 to-yellow-600",
     },
     {
-      key: "stack2",
-      title: "Viewed - Unread",
-      description: "Opened but not marked",
-      icon: Layers,
-      gradient: "from-blue-400 to-blue-600",
-    },
-    {
-      key: "stack4",
+      key: "stack5",
       title: "Low Priority",
-      description: "Regular review",
       icon: FileText,
       gradient: "from-green-400 to-green-600",
     },
     {
+      key: "stack2",
+      title: "Viewed - Unread",
+      icon: Layers,
+      gradient: "from-blue-400 to-blue-600",
+    },
+
+    {
       key: "stack1",
       title: "All Documents",
-      description: "Complete collection",
       icon: CheckCircle,
       gradient: "from-neutral-400 to-neutral-600",
     },
@@ -191,9 +205,7 @@ const DocumentStacksSection = ({ userId }) => {
   return (
     <section className="mb-10 mt-10">
       <div className="mb-8">
-        <h2 className="text-3xl font-bold text-gray-800">
-          📂 Document Dashboard
-        </h2>
+        <h2 className="text-3xl font-bold text-gray-800">Document Dashboard</h2>
         <p className="text-gray-500 mt-2">
           Manage and review your documents efficiently
         </p>
@@ -243,10 +255,10 @@ const StackCard = ({
   const Icon = config.icon;
 
   return (
-    <div className="rounded-2xl shadow-md hover:shadow-xl border border-gray-200 bg-white overflow-hidden flex flex-col transition-shadow duration-300">
+    <div className="rounded-2xl shadow-md hover:shadow-xl border border-gray-200 bg-white flex flex-col transition-shadow duration-300">
       {/* Header */}
       <div
-        className={`px-5 py-4 bg-gradient-to-r ${config.gradient} text-white`}
+        className={`px-5 py-4 rounded-t-2xl bg-gradient-to-r ${config.gradient} text-white`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -257,52 +269,53 @@ const StackCard = ({
             {Math.max(0, currentStack.length - currentTopIndex)}
           </span>
         </div>
-        <p className="text-xs opacity-80 mt-1">{config.description}</p>
       </div>
 
-      {/* Body */}
-      <div className="relative flex-1 p-4 min-h-[16rem]">
+      {/* Body: Scrollable list with fixed height */}
+      <div className="p-4 flex-1 overflow-y-auto max-h-80">
         {currentStack.length === 0 ? (
           <div className="h-full flex items-center justify-center text-gray-400 text-sm">
             No documents available
           </div>
         ) : (
-          <AnimatePresence>
-            {currentStack
-              .slice(currentTopIndex, currentTopIndex + 3)
-              .map((document, i) => {
-                const isTopCard = i === 0;
-                return (
-                  <motion.div
-                    key={document.id}
-                    className="absolute inset-0"
-                    initial={{ y: i * 8, scale: 1 - i * 0.02 }}
-                    animate={{ y: i * 8, scale: 1 - i * 0.02 }}
-                    exit={{ opacity: 0 }}
-                    drag={isTopCard ? "x" : false}
-                    dragConstraints={{ left: 0, right: 0 }}
-                    onDragEnd={(e, info) => {
-                      if (info.offset.x > 120) {
-                        handleMarkAsRead(config.key, document);
-                      } else if (info.offset.x < -120) {
-                        handleOpenDocument(document);
-                      }
-                    }}
-                    whileDrag={{ rotate: 5 }}
+          <ul className="space-y-3">
+            {currentStack.slice(currentTopIndex).map((document) => (
+              <li
+                key={document.id}
+                className="border border-gray-200 rounded-xl p-3 flex justify-between items-center hover:bg-gray-50"
+              >
+                {/* Document info */}
+                <div>
+                  <h4 className="font-semibold" title={document.title}>
+                    {getShortName(document.title, 25)}
+                  </h4>
+                  <p className="text-xs text-gray-500">
+                    Priority: {document.priority} |{" "}
+                    {document.marked_as_read ? "Read" : "Unread"}
+                  </p>
+                </div>
+
+                {/* Action buttons */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleOpenDocument(document)}
+                    className="px-2 py-1 bg-green-100 text-green-700 hover:bg-green-200 hover:text-green-800 rounded-lg text-xs transition"
                   >
-                    <VerticalCard
-                      document={document}
-                      isTopCard={isTopCard}
-                      onOpenDocument={handleOpenDocument}
-                      onMarkAsRead={() =>
-                        handleMarkAsRead(config.key, document)
-                      }
-                      className="h-full w-full"
-                    />
-                  </motion.div>
-                );
-              })}
-          </AnimatePresence>
+                    View
+                  </button>
+
+                  {!document.marked_as_read && (
+                    <button
+                      onClick={() => handleMarkAsRead(config.key, document)}
+                      className="px-2 py-1 border border-green-200 text-green-700 hover:bg-green-200 hover:text-green-800 rounded-lg text-xs transition"
+                    >
+                      Get Summary
+                    </button>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </div>
