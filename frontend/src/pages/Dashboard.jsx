@@ -41,7 +41,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-[200vh] bg-gray-50 rounded-2xl">
+    <div className="min-h-[200vh] bg-gray-50 rounded-2xl mt-10">
       {/* Sidebar */}
       <Sidebar
         sidebarOpen={sidebarOpen}
