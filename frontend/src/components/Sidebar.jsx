@@ -23,7 +23,7 @@ function Sidebar() {
     { to: "/history", icon: <FileClock />, label: t.history },
     { to: "/help", icon: <HandHelping />, label: t.help },
     { to: "/compliance", icon: <FileText />, label: t.compliance },
-    { to: "/view-summary", icon: <View />, label: t.viewsummary },
+
     { to: "/analytics", icon: <ChartLine />, label: t.analytics },
     { to: "/about", icon: <FolderCode />, label: t.about },
     { to: "/admin-options", icon: <Crown />, label: t.adminOptions },
@@ -41,8 +41,10 @@ function Sidebar() {
       "
     >
       {/* Logo */}
-      <div className="flex items-center justify-center h-16 border-b border-gray-200">
-        <span className="font-bold text-xl text-green-600">KMRL</span>
+      <div className="flex items-center justify-center border-b border-gray-200">
+        <span className="font-bold text-sm w-50 m-0 h-full">
+          <img src="./logo2-2.svg" alt="" srcset="" />
+        </span>
       </div>
 
       {/* Navigation */}
