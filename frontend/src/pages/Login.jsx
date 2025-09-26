@@ -22,7 +22,7 @@ export default function Login() {
     setLoading(true);
     setError("");
     try {
-      const data = await loginApi(employeeId, password);
+      const data = await login(employeeId, password);
       login(data.user);
       navigate("/dashboard");
     } catch (err) {
