@@ -126,5 +126,21 @@
   "selectAll": "Select All",
   "deselectAll": "Deselect All",
   "expandAll": "Expand All",
-  "collapseAll": "Collapse All"
+  "collapseAll": "Collapse All",
+
+  "history": "History",
+  "compliance": "Compliance",
+  "auditLogs": "Audit Logs",
+
+
+  "help": "Help",
+  "faq": "FAQ",
+  "contactSupport": "Contact Support",
+  "termsOfService": "Terms of Service",
+  "privacyPolicy": "Privacy Policy",
+  "about": "About",
+  "version": "Version 1.0.0",
+  "adminOptions": "Admin Options",
+  "viewsummary": "View Summary",
+  "uploadLink": "Upload Link"
 }

@@ -12,3 +12,4 @@ pytesseract
 pandas
 beautifulsoup4
 sentencepiece
+googletrans

@@ -5,6 +5,7 @@ import json
 # from nlpPipelne.stages.TextExtraction import extract_text
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
+from googletrans import Translator
 
 # Download necessary resources (run once)
 # nltk.download("punkt", quiet=True)
@@ -13,6 +14,16 @@ from nltk.corpus import stopwords
 # nltk.download("stopwords")
 # nltk.download("wordnet")
 # nltk.download("omw-1.4")
+
+translator = Translator()
+
+async def translate_to_english(text: str) -> str:
+    """Translate input text to English."""
+    if not text:
+        return ""
+    translated = await translator.translate(text, dest='en')
+    print(translated)
+    return translated.text
 
 def clean_text(text: str) -> str:
     """
@@ -36,16 +47,20 @@ def clean_text(text: str) -> str:
     return text
 
 
-def clean_normalise(stage1_result: dict) -> dict:
+async def clean_normalise(stage1_result: dict) -> dict:
     """
-    Update the original dict with cleaned and tokenized text info.
+    Update the original dict with translated, cleaned, and tokenized text info.
     """
-    cleaned = clean_text(stage1_result["raw_text"])
+    # Step 0: Translate to English first
+    translated_text = await translate_to_english(stage1_result["raw_text"])
 
-    # Sentence tokenization
+    # Step 1: Clean
+    cleaned = clean_text(translated_text)
+
+    # Step 2: Sentence tokenization
     sentences = sent_tokenize(cleaned)
 
-    # Word tokenization
+    # Step 3: Word tokenization
     words = word_tokenize(cleaned)
 
     stop_words = set(stopwords.words("english"))
@@ -57,8 +72,9 @@ def clean_normalise(stage1_result: dict) -> dict:
     # Remove punctuation-only tokens & normalize numbers
     words = [re.sub(r"\d+", "<NUM>", w) for w in words if re.match(r"[a-zA-Z0-9]", w)]
 
-    # Update the original dict instead of creating a new one
+    # Update the original dict
     stage1_result.update({
+        "translated_text": translated_text,
         "cleaned_text": cleaned,
         "sentences": sentences,
         "words": words,
@@ -67,9 +83,3 @@ def clean_normalise(stage1_result: dict) -> dict:
     })
 
     return stage1_result
-
-# if __name__ == "__main__":
-#     sample = extract_text("../TestData/sample.html")
-#     result = clean_normalise(sample["raw_text"])
-#     print("\n--- Stage 2 Processing ---")
-#     print(json.dumps(result, indent=2, ensure_ascii=False))

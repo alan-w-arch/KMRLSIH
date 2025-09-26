@@ -35,7 +35,7 @@ def save_stage4_output(doc, output_file=STAGE4_OUTPUT_FILE):
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
-def process_file(file_path, index_dir="vectorStore"):
+async def process_file(file_path, index_dir="vectorStore"):
     """
         Full pipeline: Stage 1 → Stage 5
     """
@@ -47,7 +47,7 @@ def process_file(file_path, index_dir="vectorStore"):
     print(stage1_result)
 
     # Stage 2: Clean + normalize
-    processed = clean_normalise(stage1_result)
+    processed = await clean_normalise(stage1_result)
     print("STAGE 2 DONE")
     print(processed)
 

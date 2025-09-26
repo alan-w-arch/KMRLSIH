@@ -1,14 +1,14 @@
 import os
 import re
 import json
-from transformers import pipeline, AutoTokenizer, AutoModelForTokenClassification, AutoModelForSeq2SeqLM, MBart50Tokenizer
+from transformers import pipeline, AutoTokenizer, AutoModelForTokenClassification, AutoModelForSeq2SeqLM
 from typing import List, Dict
 
 # -------------------------------
-# Global variables for models/pipelines
+# English-only model names
 # -------------------------------
-NER_MODEL_NAME = "Davlan/bert-base-multilingual-cased-ner-hrl"
-SUM_MODEL_NAME = "facebook/mbart-large-50-many-to-many-mmt"
+NER_MODEL_NAME = "dslim/bert-base-NER"
+SUM_MODEL_NAME = "facebook/bart-large-cnn"
 
 ner_pipeline = None
 summarizer_pipeline = None
@@ -33,8 +33,8 @@ def init_models(device: str = "cpu"):
         device=0 if device == "cuda" else -1
     )
 
-    # Summarization model (MBart50)
-    sum_tokenizer = MBart50Tokenizer.from_pretrained(SUM_MODEL_NAME, use_fast=False)
+    # Summarization model
+    sum_tokenizer = AutoTokenizer.from_pretrained(SUM_MODEL_NAME)
     sum_model = AutoModelForSeq2SeqLM.from_pretrained(SUM_MODEL_NAME)
     summarizer_pipeline = pipeline(
         "summarization",
@@ -42,7 +42,8 @@ def init_models(device: str = "cpu"):
         tokenizer=sum_tokenizer,
         device=0 if device == "cuda" else -1
     )
-    print("✅ Models initialized.")
+
+    print("✅ English-only models initialized.")
 
 
 # -------------------------------
@@ -51,7 +52,7 @@ def init_models(device: str = "cpu"):
 def extract_entities(text: str) -> Dict[str, List[str]]:
     entities = {}
 
-    # Multilingual NER
+    # English NER
     ner_results = ner_pipeline(text)
     for ent in ner_results:
         label = ent["entity_group"]

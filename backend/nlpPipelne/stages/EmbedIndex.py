@@ -27,7 +27,7 @@ except ImportError as e:
 # -----------------------------
 # Config
 # -----------------------------
-INDEX_DIR = "../vectorStore"
+INDEX_DIR = "vectorStore"
 INDEX_NAME = "faiss_index"
 EMBEDDINGS_FILE = "embeddings.npy"
 METADATA_FILE = "metadata.jsonl"
@@ -221,6 +221,7 @@ def indexing(input_json: dict, index_dir: str = INDEX_DIR, model_name: str = MOD
 # -----------------------------
 def search(query: str, top_k: int = 3, index_dir: str = INDEX_DIR, model_name: str = MODEL_NAME):
     out_dir = Path(index_dir)
+    print(f"{out_dir}/{INDEX_NAME}.faiss")
     if not (out_dir / f"{INDEX_NAME}.faiss").exists():
         raise FileNotFoundError("Index not built yet.")
 
